@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /app/
+Disallow: /config
+Disallow: /i18n
+Disallow: /model/
+Disallow: /vendor/
+Disallow: /hongjuzi/
+Disallow: /static
+Disallow: /ui
+Disallow: /runtime

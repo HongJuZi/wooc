@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="HongJuZi" default="dist" basedir=".">
+    <!-- Properties setting -->
+    <property name="build_dir" value="./build" override="true" />
+    <property name="package" value="${phing.project.name}" override="true" />
+    <property name="src_dir" value="${project.basedir}" override="true" />
+
+    <!-- Fileset Define -->
+    <fileset dir="${project.basedir}" id="allfiles">
+        <include name="**" /> 
+    </fileset>
+
+    <!-- prepare target -->
+    <target name="prepare">
+        <echo msg="创建构建文件夹：${build_dir}" />
+        <mkdir dir="${build_dir}" />
+    </target>
+
+    <!-- Building target -->
+    <target name="build" depends="prepare">
+        <echo msg="正在构建工程..." />
+        <echo msg="复制文件..." />
+        <copy file="${src_dir}/test.php" tofile="${build_dir}/test.php" />
+    </target>
+
+    <!-- Dist target -->
+    <target name="dist" depends="build">
+        <echo msg="创压缩包..." />
+        <tar destfile="${build_dir}/build.tar.gz" compression="gzip">
+            <fileset dir="${build_dir}">
+                <include name="*" /> 
+            </fileset> 
+        </tar>
+        <echo msg="完成整个构建过程，发布包已经成功生成到目录：${build_dir}/build.tar.gz下。" />
+    </target>
+</project>

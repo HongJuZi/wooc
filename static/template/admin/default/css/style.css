@@ -1,0 +1,35 @@
+body{font-family: "微软雅黑", "宋体", Arial, sans-serif; font-size: 12px; }
+.clearfix { clear: both; }
+.f-left { float: left; }
+.memberdiv { height: auto !important; min-height: 70px; *height: 70px; }
+select.category-items { margin-bottom: 10px; }
+.aright, .txt-right { text-align: right; }
+div.f-right { float: right !important; }
+th.field-id, td.field-id { display: none; }
+ul.ztree { overflow-y: auto; height: 200px; border: 1px #ccc solid; padding: 10px; }
+ul.ztree li { width: 195px; float: left; margin-right: 10px; }
+textarea.field-data { width: 90%; height: 95%; }
+div.dialog-box-body p.alert-info a { color: #ff0000; text-decoration: underline; }
+div.dialog-box-body p.alert-info a:hover { color: #ff0000; text-decoration: none; }
+form.form-horizontal textarea.autosize { overflow: hidden; word-wrap: break-word; resize: horizontal; height: 70px; }
+form.form-horizontal textarea { height: 80px; }
+div.tag-list { margin-top: 3px; }
+label.fright { float: right; }
+.pre-next-record { width: 400px; float: right; margin-right: 100px; text-align: right; }
+.ace-thumbnails>li { text-align: center; width: 100px; overflow: hidden; }
+.ace-thumbnails>li img { height: 120px; } 
+.uploader-box { width: 100px; float: left; border: 2px #3b98d6 dotted; height: 120px; margin: 2px; }
+.uploadify-queue { position: fixed; bottom: 0px; right: 0px; z-index: 9999; width: 150px; }
+.uploadify-button { 
+    color: #000;
+    background: #2283c5 !important; 
+    font-size: 16px;
+    line-height: 30px;
+    border-radius: 0px!important;
+    border: none !important;
+}
+li.pic { position: relative; }
+.tags-box .tagsinput { float: left; }
+.field img { max-height: 100px; }
+td.field-image_path { text-align: center; }
+.txt-blod { font-weight: 700; }
