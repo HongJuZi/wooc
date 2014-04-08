@@ -1,4 +1,4 @@
-hjzphpcms——为“订制”专门打造！
+hjzphpcms——专注“Easy 订制”
 =========
 
 红橘子信息科技工作室开源CMS——Fast &amp; Simple &amp; Stable!做最简洁的二次开发框架！
