@@ -1,7 +1,7 @@
-hjzphpcms——专注“Easy 订制”
+Wooc ——专注“Easy 订制”
 =========
 
-红橘子信息科技工作室开源CMS——Fast &amp; Simple &amp; Stable!做最简洁的二次开发框架！
+红橘子科技工作室开源CMS——Fast &amp; Simple &amp; Stable!做最简洁的二次开发框架！
 
 设计原则
 ========
