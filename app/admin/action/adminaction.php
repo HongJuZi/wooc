@@ -11,7 +11,7 @@
 defined('_HEXEC') or die('Restricted access!');
 
 //导入引用文件
-HClass::import('app.admin.action.AdminBaseAction');
+HClass::import('app.base.action.AdministratorAction');
 
 /**
  * 模块动作类 
@@ -22,8 +22,42 @@ HClass::import('app.admin.action.AdminBaseAction');
  * @package 		app.admin.action
  * @since 			1.0.0
  */
-class AdminAction extends AdminBaseAction
+class AdminAction extends AdministratorAction
 {
+
+    /**
+     * @var protected $_linkedData 关联操作对象
+     */
+    protected $_linkedData;
+
+    /**
+     * @var protected $_category 综合分类对象
+     */
+    protected $_category;
+    
+    /**
+     * @var protected $_modelCfg 当前模块配置对象
+     */
+    protected $_modelCfg;
+
+    /**
+     * @var protected $_listMap 列表映射
+     */
+    protected $_listMap;
+
+    /**
+     * 构造函数
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->_listMap     = array();
+        $this->_linkedData  = HClass::quickLoadModel('linkeddata');
+        $this->_category    = HClass::quickLoadModel('category');
+    }
 
     /**
      * 搜索方法 
@@ -46,43 +80,68 @@ class AdminAction extends AdminBaseAction
      */
     protected function _combineWhere()
     {
-        $where          = array('1 = 1');
+        $where      = $this->_getDateWhere();
         if(1 < intval(HRequest::getParameter('type'))) {
-            array_push($where, '`parent_id` = \'' . HRequest::getParameter('type') . '\'');
+            array_push($where, $this->_getParentWhere(HRequest::getParameter('type')));
         }
-        $keywords       = HRequest::getParameter('keywords');
-        if(!$keywords || '关键字...' === $keywords) {
-            return implode(' AND ', $where);
+        if(HRequest::getParameter('lang_id')) {
+            array_push($where, '`lang_id` = \'' . HRequest::getParameter('lang_id') . '\'');
         }
-        $keywordsWhere  = $this->_getSearchWhere($keywords);
-        if($keywordsWhere) {
-            array_push($where, $keywordsWhere);
+        $keyword    = HRequest::getParameter('keywords');
+        if($keyword && '关键字...' !== $keyword) {
+            array_push($where, $this->_getSearchWhere($keyword));
+        }
+        
+        return !$where ? null : implode(' AND ', $where);
+    }
+
+    /**
+     * 得到日期条件
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
+     * @return 日期条件
+     */
+    protected function _getDateWhere()
+    {
+        $where  = array('1 = 1');
+        if(HRequest::getParameter('start_date')) {
+            array_push($where, '`create_time` >= \'' . HRequest::getParameter('start_date') . '\'');
+        }
+        if(HRequest::getParameter('end_date')) {
+            array_push($where, '`create_time` < \'' . HRequest::getParameter('end_date') . '\'');
         }
 
-        if(!$where) {
-            return null;
-        }
+        return $where;
+    }
 
-        return implode(' AND ', $where);
+    /**
+     * 得到上级条件
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
+     * @param $id 编号
+     * @return 上层条件
+     */
+    protected function _getParentWhere($id)
+    {
+        return '`parent_id` = \'' . $id . '\'';
     }
 
     /**
      * 主页动作 
      * 
-     * @desc
-     * 
      * @access public
      */
     public function index()
-    {
+    {        
         $this->_search();
+
         $this->_render('list');
     }
 
     /**
      * 加载模块列表，内容使用
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
@@ -96,42 +155,124 @@ class AdminAction extends AdminBaseAction
         );
         HResponse::setAttribute('show_fields', HPopoHelper::getShowFieldsAndCfg($this->_popo));
         HResponse::setAttribute('popo', $this->_popo);
-        $this->_assignAllParentList();
-        $this->_registerFormatMap();
-        $this->_assignAllWebsite();
+        $this->_otherJobsAfterList();
     }
 
     /**
-     * 注册格式化表
-     * 
-     * @desc
+     * 加载完列表的方法
+     *
+     * @return [type] [description]
+     */
+    protected function _otherJobsAfterList() 
+    {
+        $this->_assignModelCfg();
+        $this->_assignAllParentList();
+        $this->_registerParentFormatMap(HResponse::getAttribute('parent_id_list'));
+        $this->_registerAuthorFormatMap();
+        $this->_assignLangLinkedToList();
+        $this->_assignLangList();
+        $this->_assignRootCategoryList();
+        HResponse::registerFormatMap('lang_id', 'name', HResponse::getAttribute('lang_id_map'));
+    }
+
+    /**
+     * 詳細頁面後驅方法 
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
      */
-    protected function _registerFormatMap() 
+    protected function _otherJobsAfterInfo() { }
+
+    /**
+     * 加载语言关联列表
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
+     */
+    protected function _assignLangLinkedToList()
+    {
+        if(2 != $this->_modelCfg['has_multi_lang']) {
+            return;
+        }
+        $list       = HResponse::getAttribute('list');
+        if(!$list) {
+            return;
+        }
+        $this->_linkedData->setRelItemModel($this->_popo->modelEnName, 'lang');
+        $linkedList = $this->_linkedData->getAllRowsByFields(
+            '`item_id`, `extend`, `rel_id`', 
+            HSqlHelper::whereInByListMap('rel_id', 'id', $list)
+        );
+        foreach($list as $key => $item) {
+            $langMap    = array();
+            foreach($linkedList as $linked) {
+                if($linked['rel_id'] != $item['id']) {
+                    continue;
+                }
+                $langMap[$linked['item_id']]    = $linked;
+            }
+            $item['lang_map']   = $langMap;
+            $list[$key]         = $item;
+        }
+        HResponse::setAttribute('list', $list);
+    }
+
+    /**
+     * 添加视图后驱
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
+     */
+    protected function _otherJobsAfterAddView() 
     { 
-        $this->_registerParentFormatMap(HResponse::getAttribute('parent_id_list'));
-        $this->_registerAuthorFormatMap();
+        $this->_assignLangList();
+        $this->_assignModelCfg();
+        $this->_assignRootCategoryList();
+        $this->_assignLangLinkedListByLId(HRequest::getParameter('fid'));
+    }
+
+    /**
+     * 视频详细页后驱
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
+     */
+    protected function _otherJobsAfterEditView($record = null) 
+    { 
+        $this->_assignLangList();
+        $this->_assignModelCfg();
+        $this->_assignRootCategoryList();
+        $this->_assignLangLinkedListById($record['id']);
+    }
+
+    /**
+     * 加载模块配置对象
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
+     */
+    protected function _assignModelCfg()
+    {
+        $modelManager       = HClass::quickLoadModel('modelmanager');
+        $this->_modelCfg    = $modelManager->getRecordByIdentifier($this->_popo->modelEnName);
+        HResponse::setAttribute('modelCfg', $this->_modelCfg);
     }
 
     /**
      * 添加模块视图 
-     * 
-     * @desc
      * 
      * @access public
      */
     public function addview()
     {  
         $this->_addview();
+        $this->_otherJobsAfterInfo();
+
         $this->_render($this->_popo->modelEnName . '/info');
     }
 
     /**
      * 添加视图的最小原子代码，内部使用
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
@@ -140,33 +281,27 @@ class AdminAction extends AdminBaseAction
     protected function _addview()
     {
         $this->_assignAllParentList();
-        $this->_assignAllWebsite();
         HResponse::setAttribute('popo', $this->_popo);
         HResponse::setAttribute('nextAction', 'add');
         HResponse::setAttribute('author', HSession::getAttribute('name', 'user'));
+        $this->_otherJobsAfterAddView();
     }
 
     /**
      * 执行模块的添加 
      * 
-     * @desc
-     * 
      * @access public
      */
     public function add()
     {
-        $this->_add();
+        $insertId   = $this->_add();
+        $this->_addLangLinkedData($insertId);
 
-        HResponse::succeed(
-            '新' . $this->_popo->modelZhName . '添加成功！',
-            HResponse::url($this->_popo->modelEnName)
-        );
+        HResponse::succeed('新' . $this->_popo->modelZhName . '添加成功！');
     }
 
     /**
      * 添加原子方法内部使用
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
@@ -180,7 +315,7 @@ class AdminAction extends AdminBaseAction
         $this->_uploadFile();
         $insertId  = $this->_model->add(HPopoHelper::getAddFieldsAndValues($this->_popo));
         if(false === $insertId) {
-            throw new HRequestException(HResponse::lang('ADD_FAIL'));
+            throw new HRequestException(HTranslate::__('添加失败'));
         }
 
         return $insertId;
@@ -188,8 +323,6 @@ class AdminAction extends AdminBaseAction
 
     /**
      * 设置当前的排序号
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
@@ -204,26 +337,11 @@ class AdminAction extends AdminBaseAction
             HVerify::isNumber(HRequest::getParameter('sort_num'), '排序编号');
             return;
         }
-        HRequest::setParameter('sort_num', $_SERVER['REQUEST_TIME']);
-    }
- 
-    /**
-     * 编辑动作 
-     * 
-     * @desc
-     * 
-     * @access public
-     */
-    public function editview()
-    {
-        $this->_editview();
-        $this->_render($this->_popo->modelEnName . '/info');
+        HRequest::setParameter('sort_num', '99999');
     }
 
     /**
      * 编辑视图的原子方法，内部使用
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
@@ -234,22 +352,20 @@ class AdminAction extends AdminBaseAction
         HVerify::isRecordId(HRequest::getParameter('id'));
         $record     = $this->_model->getRecordById(HRequest::getParameter('id'));
         if(HVerify::isEmpty($record)) {
-            throw new HVerifyException(HResponse::lang('NO_THIS_RECORD', false));
+            throw new HVerifyException(HTranslate::__('没有这条信息'));
         }
         $this->_assignAllParentList();
         $this->_assignAuthorInfo($record['author']);
         $this->_assignPreNextRecord($record);
-        $this->_assignAllWebsite();
         
         HResponse::setAttribute('record', $record);
         HResponse::setAttribute('nextAction', 'edit');
         HResponse::setAttribute('popo', $this->_popo);
+        $this->_otherJobsAfterEditView($record);
     }
 
     /**
      * 加载上一条跟下一条信息
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
@@ -268,8 +384,6 @@ class AdminAction extends AdminBaseAction
     /**
      * 加载标签字典
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
      */
@@ -279,8 +393,8 @@ class AdminAction extends AdminBaseAction
             return;
         }
         $record         = HResponse::getAttribute('record');
-        $relationship   = HClass::quickLoadModel('relationship');
-        $relList        = $relationship->getAllRows('`rel_id` = ' . $record['id']);
+        $where          = '`rel_id` = ' . $record['id'];
+        $relList        = $this->_linkedData->setRelItemModel($this->_popo->modelEnName, 'tags')->getAllRows($where);
         if(!$relList) {
             return;
         }
@@ -298,12 +412,10 @@ class AdminAction extends AdminBaseAction
     /**
      * 添加标签外键关系
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
      */
-    protected function _addTagRelationship($relId)
+    protected function _addTagLinkedData($relId)
     {
         if(!HRequest::getParameter('tag_ids')) {
             return;
@@ -315,21 +427,20 @@ class AdminAction extends AdminBaseAction
         $data   = array();
         foreach($tagIds as $itemId) {
             $data[]     = array(
-                $itemId, $relId, 
-                HResponse::getAttribute('HONGJUZI_MODEL'),
+                $itemId, 
+                $relId,
                 HSession::getAttribute('id', 'user')
             );
         }
-        $relationship   = HClass::quickLoadModel('relationship');
-        if(1 > $relationship->add($data, array('item_id', 'rel_id', 'model', 'author'))) {
+        $fields         = array('item_id', 'rel_id', 'author');
+        $this->_linkeddata->setRelItemModel(HResponse::getAttribute('HONGJUZI_MODEL'), 'tags');
+        if(1 > $this->_linkeddata->add($data, $fields)) {
             throw new HRequestException('标签关联添加失败！');
         }
     }
 
     /**
      * 加载当前信息作者 
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
@@ -347,25 +458,33 @@ class AdminAction extends AdminBaseAction
     }
 
     /**
-     * 编辑提示动作 
+     * 编辑动作 
      * 
-     * @desc
+     * @access public
+     */
+    public function editview()
+    {
+        $this->_editview();
+        $this->_otherJobsAfterInfo();
+        
+        $this->_render($this->_popo->modelEnName . '/info');
+    }
+
+    /**
+     * 编辑提示动作 
      * 
      * @access public
      */
     public function edit()
     {
-        $this->_edit();
-        HResponse::succeed(
-            $this->_popo->modelZhName . '信息更新成功！', 
-            HResponse::url($this->_popo->modelEnName)
-        );
+        $record     = $this->_edit();
+        $this->_addLangLinkedData($record['id']);
+
+        HResponse::succeed($this->_popo->modelZhName . '信息更新成功！');
     }
 
     /**
      * 编辑的原子方法
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
@@ -375,22 +494,21 @@ class AdminAction extends AdminBaseAction
     {
         $this->_setFieldsDefaultValue();
         $this->_verifyDataByPopoCfg();
-        $this->_setAutoFillFields();
         $record         = $this->_model->getRecordById(HRequest::getParameter('id'));
         if(HVerify::isEmpty($record)) {
-            throw new HVerifyException(HResponse::lang('NO_THIS_RECORD', false));
+            throw new HVerifyException(HTranslate::__('没有这个记录'));
         }
+        $this->_setAutoFillFields();
         $this->_uploadFile();
-        HRequest::setParameter('author', HSession::getAttribute('id', 'user'));
         if(false === $this->_model->edit(HPopoHelper::getUpdateFieldsAndValues($this->_popo))) {
-            throw new HRequestException(HResponse::lang('UPDATE_FAIL'), false);
+            throw new HRequestException(HTranslate__('更新失败'));
         }
+
+        return $record;
     }
 
     /**
      * 设置一些请求的字段值
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
@@ -404,8 +522,6 @@ class AdminAction extends AdminBaseAction
     /**
      * 删除动作 
      * 
-     * @desc
-     * 
      * @access public
      */
     public function delete()
@@ -415,6 +531,8 @@ class AdminAction extends AdminBaseAction
             $recordIds  = array($recordIds);
         }
         $this->_delete($recordIds);
+        $this->_otherJobsAfterDelete($recordIds);
+
         HResponse::succeed(
             '删除成功！', 
             HResponse::url($this->_popo->modelEnName, '', 'admin')
@@ -422,9 +540,20 @@ class AdminAction extends AdminBaseAction
     }
 
     /**
-     * 删除信息内部使用
+     * 删除后其它的动作
      * 
-     * @desc
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
+     * @param  array $ids 需要处理的编号
+     */
+    protected function _otherJobsAfterDelete($ids) 
+    {
+        $this->_assignModelCfg();
+        $this->_deleteLangLinkedData($ids);
+    }
+
+    /**
+     * 删除信息内部使用
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
@@ -441,7 +570,7 @@ class AdminAction extends AdminBaseAction
             }
             $this->_deleteFiles($record);
             if(!empty($record) && false === $this->_model->delete($recordId)) {
-                throw new HRequestException(HResponse::lang('DELETE_FAIL', false));
+                throw new HRequestException(HTranslate::__('删除失败'));
             }
         }
     }
@@ -449,29 +578,25 @@ class AdminAction extends AdminBaseAction
     /**
      * 快捷操作 
      * 
-     * @desc
-     * 
      * @access public
      */
     public function quick()
     {
-        HVerify::isEmpty(HRequest::getParameter('operation'), HResponse::lang('OPERATION_CAN_NOT_EMPTY', false));
-        HVerify::isEmpty(HRequest::getParameter('id'), HResponse::lang('YOU_NOT_SELECT_ITEMS', false));
+        HVerify::isEmpty(HRequest::getParameter('operation'), HTranslate::__('操作不能为空'));
+        HVerify::isEmpty(HRequest::getParameter('id'), HTranslate::__('操作项目'));
         $recordIds          = HRequest::getParameter('id');
         switch(HRequest::getParameter('operation')) {
             case 'delete': $this->delete(); return;
             default: throw new HVerifyException('操作还没有开放使用～');
         }
         if(false === $this->_model->moreUpdate($recordIds, $opCfg)) {
-            throw new HRequestException(HResponse::lang('UPDATE_FAIL', false));
+            throw new HRequestException(HTranslate::__('更新失败'));
         }
-        HResponse::succeed(HResponse::lang('UPDATE_SUCCESS', false), $this->_getReferenceUrl(1));
+        HResponse::succeed(HTranslate::__('更新成功'), $this->_getReferenceUrl(1));
     }
 
     /**
      * 删除快捷操作里的文件
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
@@ -497,11 +622,7 @@ class AdminAction extends AdminBaseAction
     {
         HResponse::setAttribute(
             'parent_id_list', 
-            $this->_getRelationModelList(
-                $this->_popo->get('parent'),
-                'parent_id',
-                '*'
-            )
+            $this->_getRelationModelList($this->_popo->get('parent'), 'parent_id', '*')
         );
     }
 
@@ -515,24 +636,25 @@ class AdminAction extends AdminBaseAction
      */
     protected function _registerParentFormatMap($data = null)
     {
-        if((null !== $data && !$data) || !$this->_popo->getFieldAttribute('parent_id', 'is_show')) { return ; }
-        $data   = null === $data ? $this->_getRelationModelList(
-            $this->_popo->get('parent'),
-            'parent_id',
-            HResponse::getAttribute('list')
-        ) : $data;
+        $data   = HResponse::getAttribute('list');
+        if(!$data || !$this->_popo->getFieldAttribute('parent_id', 'is_show')) { 
+            return ; 
+        }
+        $parent = HClass::quickLoadModel($this->_popo->get('parent'));    
+        $list   = $parent->getAllRowsByFields(
+            '`id`, `name`, `parent_id`',
+            HSqlHelper::whereInByListMap('id', 'parent_id', $data)
+        );
         //注册用户名格式化
         HResponse::registerFormatMap(
             'parent_id',
             'name',
-            HArray::turnItemValueAsKey($data, 'id')
+            HArray::turnItemValueAsKey($list, 'id')
         );
     }
     
     /**
      * 加载关联的作者信息列表
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
@@ -577,8 +699,6 @@ class AdminAction extends AdminBaseAction
     /**
      * 检测当前的名称是否被使用
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
      * @throws HVerifyException 验证异常 
@@ -600,8 +720,6 @@ class AdminAction extends AdminBaseAction
     /**
      * 加载父级的信息 
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
      * @param  int $parentId 当前所属的父类ID
@@ -620,8 +738,6 @@ class AdminAction extends AdminBaseAction
     /**
      * 快捷更新操作
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
      */
@@ -635,7 +751,7 @@ class AdminAction extends AdminBaseAction
         }
         $record = $this->_model->getRecordById(HRequest::getParameter('id'));
         if(empty($record)) {
-            throw new HVerifyException(HResponse::lang('INFORMATION_HAS_DELETE', false));
+            throw new HVerifyException(HTranslate::__('信息已经不存在'));
         }
         $data   = array(
             'id' => HRequest::getParameter('id'),
@@ -649,12 +765,8 @@ class AdminAction extends AdminBaseAction
         HResponse::json(array('rs' => true, 'message' => '更新成功:)'));
     }
 
-    
-
     /**
      * 自动保存
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
@@ -675,17 +787,326 @@ class AdminAction extends AdminBaseAction
     }
 
     /**
-     * 加载所有的网站
+     * 得到用户的头像地址
      * 
-     * @desc
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public
+     * @param  String $uid 用户ID
+     * @param  String $size='middle' 图片大小
+     * @return String
+     */
+    public function getAvatar($uid) 
+    {
+        $uid    = abs(intval($uid));    //UID取整数绝对值
+        $uid    = sprintf("%09d", $uid); //前边加0补齐9位，例如UID为31的用户变成 000000031
+        $dir1   = substr($uid, 0, 3);   //取左边3位，即 000
+        $dir2   = substr($uid, 3, 2);   //取4-5位，即00
+        $dir3   = substr($uid, 5, 2);   //取6-7位，即00
+
+        // 下面拼成用户头像路径，即000/00/00/31_avatar_middle.jpg
+        return $dir1 . '/' . $dir2 . '/' . $dir3 . '/' . substr($uid, -2) . '_avatar_%s.jpg';
+    }
+
+    /**
+     * Grid加载列表
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public
+     */
+    public function aloadlist()
+    {
+        HVerify::isAjax();
+        $fields     = HPopoHelper::getShowFieldsAndCfg($this->_popo);
+        $page       = $this->_getPageNumber();
+        $where      = $this->_getSearchWhere(HRequest::getParameter('keywords'));
+        $list       = $this->_model->getListByFields(
+            array_keys($fields),
+            $where,
+            $page,
+            15
+        );
+
+        HResponse::json(array(
+            'rs' => true, 
+            'data' => array(
+                'fields' => $fields,
+                'list' => $list
+            ))
+        );
+    }
+    
+    /**
+     * 自动化完成任务
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public
+     */
+    public function akeyword()
+    {
+        HVerify::isAjax();
+        $keyword    = urldecode(HRequest::getParameter('keyword'));
+        if(!$keyword) {
+            HResponse::json(array('rs' => true, 'data' => array()));
+            return;
+        }
+        $where      = '`name` LIKE \'%' . $keyword . '%\'';
+        $ids        = array_filter(explode(',', HRequest::getParameter('ids')));
+        if($ids) {
+            $where  .= ' AND ' . HSqlHelper::whereNotIn('id', $ids);
+        }
+        $list       = $this->_model->getSomeRowsByFields(5, '`id`, `name`, `lang_id`', $where);
+
+        HResponse::json(array('rs' => true, 'data' => $list));
+    }
+
+    /**
+     * 删除语言关联信息
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public
+     */
+    public function adellanglinked()
+    {
+        HVerify::isAjax();
+        HVerify::isNumber(HRequest::getParameter('id'), '编号');
+        HVerify::isNumber(HRequest::getParameter('copy_id'), '关联编号');
+        $this->_linkedData->setRelItemModel($this->_popo->modelEnName, 'lang');
+        $where      = '`extend` = ' . HRequest::getParameter('copy_id')
+            . ' AND `rel_id` = ' . HRequest::getParameter('id');
+        $record     = $this->_linkedData->getRecordByWhere($where);
+        if(!$record) {
+            throw new HVerifyException('记录已经不存在，请确认！');
+        }
+        $this->_linkedData->deleteByWhere($where);
+        //删除对应关联
+        $this->_linkedData->deleteByWhere(
+            '`extend` = ' . HRequest::getParameter('id')
+            . ' AND `rel_id` = ' . HRequest::getParameter('copy_id')
+        );
+        HResponse::json(array('rs' => true));
+    }
+
+    /**
+     * 添加语言对应关联数据
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
+     * @param $id 当前记录编号
+     */
+    protected function _addLangLinkedData($id)
+    {
+        if(!HRequest::getParameter('lang_linked')) {
+            return;
+        }
+        $langLinked     = HRequest::getParameter('lang_linked');
+        $this->_linkedData->setRelItemModel($this->_popo->modelEnName, 'lang');
+        $this->_deleteLangLinkedEachOther($id, $langLinked);
+        $this->_updateLangLinkedData($id, $langLinked);
+    }
+
+    /**
+     * 更新语言关联数据
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
+     * @param $id 当前信息编号
+     * @param  $langLinked 关联语言数组
+     */
+    protected function _updateLangLinkedData($id, $langLinked)
+    {
+        $list           = $this->_linkedData->getAllRowsByFields('`item_id`, `extend`', '`rel_id` = ' . $id);
+        foreach($list as $item) {
+            $key        = array_search($item['extend'], $langLinked);
+            if(false !== $key) {
+                unset($langLinked[$key]);
+            }
+        }
+        $linkedList     = $this->_model->getAllRowsByFields(
+            '`id`, `lang_id`',
+            HSqlHelper::whereIn('id', $langLinked)
+        );
+        $data           = array();
+        $record         = $this->_model->getRecordById($id);
+        foreach($linkedList as $linked) {
+            $item['rel_id']     = $id;
+            $item['item_id']    = $linked['lang_id'];
+            $item['extend']     = $linked['id'];
+            $item['author']     = HSession::getAttribute('id', 'user');
+            $data[]             = $item;
+            $item['rel_id']     = $linked['id'];
+            $item['item_id']    = $record['lang_id'];
+            $item['extend']     = $record['id'];
+            $data[]             = $item;
+        }
+        if(empty($data)) {
+            return;
+        }
+        if(1 > $this->_linkedData->addMore('`rel_id`, `item_id`, `extend`, `author`', $data)) {
+            throw new HRequestException('添加语言关联数据失败，请确认！');
+        }
+    }
+
+    /**
+     * 删除对应语言关联数据
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
+     * @param $ids 编号
+     */
+    protected function _deleteLangLinkedData($ids)
+    {
+        if(2 != $this->_modelCfg['has_multi_lang']) {
+            return;
+        }
+        $this->_linkedData->setRelItemModel($this->_popo->modelEnName, 'lang');
+        $this->_linkedData->deleteByWhere(HSqlHelper::whereIn('rel_id', $ids));
+        $this->_linkedData->deleteByWhere(HSqlHelper::whereIn('extend', $ids));
+    }
+
+    /**
+     * 异步得到详细信息
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public
+     */
+    public function aget()
+    {
+        HVerify::isAjax();
+        HVerify::isNumber(HRequest::getParameter('id'), '编号');
+        $record     = $this->_model->getRecordById(HRequest::getParameter('id'));
+        if(empty($record)) {
+            throw new HVerifyException('记录已经不存在，请确认！');
+        }
+        $record['format_datetime']  = date('Y-m-d H:m:s', $record['create_time']);
+
+        HResponse::json(array('rs' => true, 'data' => $record));
+    }
+
+    /**
+     * 加载对应语言关联编号
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
      */
-    protected function _assignAllWebsite()
+    protected function _assignLangLinkedListByLId($id)
     {
-        $website    = HClass::quickLoadModel('website');
-        HResponse::setAttribute('websiteList', $website->getAllRows());
+        if(!$id) {
+            return;
+        }
+        $record     = $this->_model->getRecordById($id);
+        if(!$record) {
+            throw new HVerifyException('对应语言已经不存在，请确认！');
+        }
+        $record['copy_id']   = $record['id'];
+        HResponse::setAttribute('copyRecord', $record);
+        HResponse::setAttribute('langLinkedMap', array($record['lang_id'] => $record));
+    }
+
+    /**
+     * 删除相互连接关系
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
+     * @param $id 当前信息编号
+     * @param  $langLinked 关联编号数组
+     */
+    protected function _deleteLangLinkedEachOther($id, $langLinked)
+    {
+        $where          = '`rel_id` = ' . $id . ' AND ' . HSqlHelper::whereNotIn('extend', $langLinked);
+        $this->_linkedData->setRelItemModel($this->_popo->modelEnName, 'lang');
+        $deleteList     = $this->_linkedData->getAllRowsByFields('`id`, `extend`', $where);
+        if(!$deleteList) {
+            return;
+        }
+        $this->_linkedData->deleteByWhere(HSqlHelper::whereInByListMap('id', 'id', $deleteList));
+        $this->_linkedData->deleteByWhere(
+            '`extend` = ' . $id . ' AND ' . HSqlHelper::whereInByListMap('rel_id', 'extend', $deleteList)
+        );
+    }
+
+    /**
+     * 删除标签关联数据
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access private
+     * @param $ids 删除的数据对象编号
+     */
+    protected function _deleteTagsLinkedData($ids)
+    {
+        $this->_linkedData->setRelItemModel($this->_popo->modelEnName, 'tags');
+        $where  = HSqlHelper::whereIn('item_id', $ids);
+        $list   = $this->_linkedData->getAllRowsByFields('`id`, `rel_id`', $where);
+        $tags   = HClass::quickLoadModel('tags');
+        foreach($list as $item) {
+            $total  = $this->_linkedData->getTotalRecords('`rel_id` = ' . $item['rel_id'] . ' AND ' . $where);
+            $tags->incFieldByWhere('hots', '`id` = ' . $item['rel_id'], -1 * $total);
+            $this->_linkedData->deleteByWhere('`rel_id` = ' . $item['rel_id'] . ' AND ' . $where);
+        }
+    }
+
+    /**
+     * 加载语言关联列表
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
+     */
+    protected function _assignLangLinkedListById($id)
+    {
+        if(2 != $this->_modelCfg['has_multi_lang']) {
+            return;
+        }
+        if(!$id) {
+            return;
+        }
+        $this->_linkedData->setRelItemModel($this->_popo->modelEnName, 'lang');
+        $linkedList = $this->_linkedData->getAllRowsByFields('`item_id`, `extend`', '`rel_id` = ' . $id);
+        $matchList  = $this->_model->getAllRowsByFields(
+            '`id`, `name`, `lang_id`',
+            HSqlHelper::whereInByListMap('id', 'extend', $linkedList)
+        );
+        HResponse::setAttribute('langLinkedMap', HArray::turnItemValueAsKey($matchList, 'lang_id'));
+    }
+
+    /**
+     * 加载最顶级分类到视图中
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
+     */
+    protected function _assignRootCategoryList()
+    {
+        HResponse::setAttribute(
+            'rootCatList', 
+            $this->_category->getAllRowsByFields(
+                '`id`, `name`, `parent_id`',
+                '`parent_id` < 1'
+            )
+        );
+    }
+
+    /**
+     * 格式化以ZTree数据
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access private
+     * @param $list 数据集合
+     * @param $ids 有的编号
+     * @return Array 格式化数据
+     */
+    protected function _formatToZTreeNodes($list, $ids)
+    {
+        $nodes      = array();
+        foreach($list as $item) {
+            $nodes[]    = array(
+                'id' => $item['id'],
+                'pId' => $item['parent_id'],
+                'name' => $item['name'],
+                'open' => true,
+                'checked' => in_array($item['id'], $ids)
+            );
+        }
+
+        return $nodes;
     }
 
 }

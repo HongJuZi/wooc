@@ -8,7 +8,7 @@
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 /**
  * 框架数据库实例工厂类 
@@ -73,7 +73,7 @@ class HDbFactory extends HObject
                     self::$_dbMap[$hash]    = HOracle::getInstance($dbConfig);
                     break;
                 default:
-                    throw new HDatabaseException('CAN_NOT_FOUND_DB_DRIVER');
+                    throw new HVerifyException('CAN_NOT_FOUND_DB_DRIVER');
             }
         }
         return self::$_dbMap[$hash];

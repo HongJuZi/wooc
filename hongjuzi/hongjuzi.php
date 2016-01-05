@@ -8,53 +8,49 @@
  * HongJuZi Framework
  */
 
+//开启session
+@session_start();
+
 /*********************系统环境配置开始*********************/
-//配置错误信息
-@error_reporting(E_ALL & ~E_NOTICE); //E_ALL & ~E_NOTICE | 0
-@ini_set('display_errors', 'On'); //On | Off
+/* 初始化设置 */
+@ini_set('session.use_trans_sid', 0);
+@ini_set('session.use_cookies',   1);
+@ini_set('session.auto_start',    0);
+
+//配置超时时间
+!ini_get('safe_mode') ? set_time_limit(30) : ''; //设置最大的执行时间
+setlocale(LC_ALL, '');
 //定义路径，跟系统路径分隔符的快捷符号
 define('DS', '/'); //DIRECTORY_SEPARATOR);
-define('PS', PATH_SEPARATOR);
-//配置超时时间
-!ini_get('safe_mode') ? set_time_limit(25) : ''; //设置最大的执行时间
-
-//定义网站根目录路径
-$loc    = strpos($_SERVER['REQUEST_URI'], 'index.php');
-$loc    = false === $loc ? strpos($_SERVER['REQUEST_URI'], '?') : $loc;
-@define(
-    'SITE_URL',
-    'http://' . $_SERVER['HTTP_HOST'] 
-    . (false === $loc ?  $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $loc))
-);
+define('MEMERY_USAGE', memory_get_usage());
+@define('IS_CLI', (substr(php_sapi_name(), 0, 3) == 'cli') ? true : false);
 /*********************系统环境配置结束*********************/
 
 /*********************框架环境配置开始*********************/
-//定义HongJuZi框架目录
-@define('HPATH_BASE', dirname(__FILE__) . '/..');
 //把框架目录放到系统环境路径里
-@ini_set('include_path', ini_get('include_path') . PS . HPATH_BASE);
+@ini_set('include_path', ini_get('include_path') . PS . HJZ_DIR . ';');
 /*********************框架环境配置结束*********************/
 
 /*********************框架基础文件导入开始*********************/
-require('hongjuzi/core/hobject.php');
-require('hongjuzi/filesystem/hclass.php');
-require('hongjuzi/exception/hexceptions.php');
-require('hongjuzi/filesystem/hfile.php');
-require('hongjuzi/language/hlanguage.php');
-require('hongjuzi/log/hlog.php');
-require('hongjuzi/utils/hstring.php');
-require('hongjuzi/utils/hverify.php');
-require('hongjuzi/utils/harray.php');
-require('hongjuzi/utils/hpopohelper.php');
-require('hongjuzi/utils/hsqlhelper.php');
-require('hongjuzi/net/hsession.php');
-require('hongjuzi/net/hrequest.php');
-require('hongjuzi/net/hresponse.php');
-require('hongjuzi/core/happlication.php');
-require('hongjuzi/core/hpopo.php');
-require('hongjuzi/core/hrouter.php');
-require('hongjuzi/mvc/hmodel.php');
-require('hongjuzi/mvc/haction.php');
+require('core/hobject.php');
+require('filesystem/hclass.php');
+require('exception/hexceptions.php');
+require('filesystem/hfile.php');
+require('language/htranslate.php');
+require('log/hlog.php');
+require('utils/hstring.php');
+require('utils/hverify.php');
+require('utils/harray.php');
+require('utils/hpopohelper.php');
+require('utils/hsqlhelper.php');
+require('net/hsession.php');
+require('net/hrequest.php');
+require('net/hresponse.php');
+require('core/happlication.php');
+require('core/hpopo.php');
+require('core/hrouter.php');
+require('mvc/hmodel.php');
+require('mvc/haction.php');
 /*********************框架基础文件导入结束*********************/
 
 //设置错误信息舞控制对象

@@ -6,7 +6,7 @@
  * @description HongJuZi Framework
  * @copyright Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 /**
  * 类工具文件
@@ -33,8 +33,6 @@ class HClass extends HObject
     /**
      * 导入类文件
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public static
      * @param  String $filePath 类文件路径
@@ -53,7 +51,7 @@ class HClass extends HObject
             if(isset(self::$_filesMap[$key])) {
                 continue;
             }
-            $filePath   = self::_formatClassPath($filePath);
+            $filePath   = ROOT_DIR . self::_formatClassPath($filePath);
             if(!file_exists($filePath)) {
                 throw new HIOException('文件不存在！' . $filePath);
             }
@@ -81,7 +79,18 @@ class HClass extends HObject
     /**
      * 快速加载模块对象
      * 
-     * @desc
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public static
+     * @param  String $model 模块英语名称
+     * @return HModel 模块数据层操作对象
+     */
+    public static function quickLoadPopo($model)
+    {
+        return self::_loadClass('config.popo', $model . 'Popo');
+    }
+
+    /**
+     * 快速加载模块对象
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public static

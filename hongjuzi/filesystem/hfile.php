@@ -8,7 +8,7 @@
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 /**
  * 文件操作工具类 
@@ -40,15 +40,16 @@ class HFile extends HObject
         if(file_exists($file) && ($override === false)) {
             return;
         }
+        $mask   = umask(0);
         if(false === file_put_contents($file, $content)) {
             throw new HIOException($file . '文件写入失败！');
         }
+        chmod($file, 0777);
+        umask($mask);
     }
 
     /**
      * 读取文件内容 
-     * 
-     * @desc
      * 
      * @access public static
      * @param string $file 文件路径
@@ -84,6 +85,7 @@ class HFile extends HObject
             throw new HIOException($file . '文件写入失败！');
         }
         self::setChangeTime($file);
+        chmod($file, 0777);
     }
 
     /**
@@ -101,6 +103,7 @@ class HFile extends HObject
         $fileHandle     = fopen(HString::formatEncodeToOs($file), 'a+');
         $appendLength   = fwrite($fileHandle, $content);
         fclose($fileHandle);
+        chmod($file, 0777);
 
         return $appendLength > 0 ? true : false;
     }
@@ -202,7 +205,7 @@ class HFile extends HObject
     }
 
     /**
-     * 得到文件名包含扩展名 
+     * 得到文件名不包含扩展名 
      * 
      * 支持uri及字符串形式 
      * 
@@ -215,8 +218,7 @@ class HFile extends HObject
     {
         $fileInfo   = pathinfo($file);
         
-        return strtr($fileInfo['basename'],
-                     array('.' . $fileInfo['extension'] => ''));
+        return $fileInfo['filename'];
     }
 
     /**
@@ -226,25 +228,21 @@ class HFile extends HObject
      * 
      * @access public static
      * @param string $file 需要处理的文件路径
-     * @return string 
-     * @exception none
+     * @param string $prefix 前缀如：.
+     * @return string 解析后的扩展名
      */
-    public static function getExtension($file)
+    public static function getExtension($file, $prefix = '.')
     {
         $fileInfo   = pathinfo($file);
 
-        return '.' . strtolower($fileInfo['extension']);
+        return $prefix . strtolower($fileInfo['extension']);
     }
 
     /**
      * 得到文件名 
      * 
-     * @desc
-     * 
      * @access public static
      * @param $file
-     * @return void
-     * @exception none
      */
     public static function getBaseName($file)
     {
@@ -256,12 +254,8 @@ class HFile extends HObject
     /**
      * 检察文件是否存在 
      * 
-     * @desc
-     * 
      * @access public static
      * @param string $file 文件路径
-     * @return boolean 
-     * @exception none
      */
     public static function isExists($file)
     {
@@ -271,12 +265,8 @@ class HFile extends HObject
     /**
      * 检验文件是否可读 
      * 
-     * @desc
-     * 
      * @access public static
      * @param  String $file 需要处理的文件路径
-     * @return Boolean 
-     * @exception none
      */
     public static function isReadable($file)
     {
@@ -296,7 +286,6 @@ class HFile extends HObject
      * @param  String $file 需要处理的文件路径
      * @param  String $format 当前的时间格式，默认为：'Y-m-d H:m:s'
      * @return String 格式化后的值 
-     * @throws none
      */
     public static function getChangeTime($file, $format = 'Y-m-d H:m:s')
     {
@@ -339,9 +328,23 @@ class HFile extends HObject
      */
     public static function getSize($file)
     {
-        $size   = sprintf("%u", filesize($file));
+        return self::formatFileSize(sprintf("%u", filesize($file)));
+    }
+
+    /**
+     * 格式化文件大小
+     * 
+     * @desc
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public static
+     * @param  int $size 当前大小
+     * @return String 格式化后的值
+     */
+    public static function formatFileSize($size)
+    {
         if(1024 > $size) {  //Bytes级
-            return $size . 'Bytes';
+            return 0 == $size ? '未知' : $size . 'Bytes';
         }
         if(1048756 > $size) {   //KB级
             return sprintf("%01.2f", $size / 1024) . 'KB';
@@ -370,6 +373,9 @@ class HFile extends HObject
      */
     public static function getImageZoomTypePath($imagePath, $zoomType, $def = 'default.jpg')
     {
+        if(false !== strpos($imagePath, '://')) {
+            return $imagePath;
+        }
         if(empty($imagePath)) { return $def; }
         $type   = self::getExtension($imagePath);
 
@@ -413,6 +419,36 @@ class HFile extends HObject
         // 下面拼成用户头像路径，即000/00/00/31_avatar_middle.jpg
         
         return $dir1 . '/' . $dir2 . '/' . $dir3 . '/' . substr($uId, -2) . '-avatar-';
+    }
+
+    /**
+     * 格式化文件大小值
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access private
+     * @param  $size 大小值
+     * @return int 格式化后的大小
+     */
+    public static function formatSizeToByte($size)
+    {
+        $value  = floatval($size);
+        if(1 > $value) {
+            return 0;
+        }
+        $size       = strtolower($size);
+        if(false !== strpos($size, 't')) {
+            $pow    = 4;
+        } else if(false !== strpos($size, 'g')) {
+            $pow    = 3;
+        } else if(false !== strpos($size, 'm')) {
+            $pow    = 2;
+        } else if(false !== strpos($size, 'k')) {
+            $pow    = 1;
+        } else {
+            $pow    = 0;
+        }
+
+        return $value * pow(1024, $pow);
     }
 
 }

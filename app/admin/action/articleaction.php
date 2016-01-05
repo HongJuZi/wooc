@@ -24,94 +24,85 @@ class ArticleAction extends AdminAction
 {
 
     /**
+     * 前驱方法
+     * @return [type] [description]
+     */
+    public function beforeAction()
+    {
+        //$this->_hverifyUserActor();
+    }
+
+    /**
+     * [_hverifyUserActor description]
+     * @return [type] [description]
+     */
+    private function _hverifyUserActor()
+    {
+        $actor  = $this->_getUserActor();
+        if(!in_array($actor['identifier'], array('root', 'editor'))) {
+            throw new HRequestException('对不起您没有该权限');
+        }
+    }
+
+    /**
      * 构造函数 
-     * 
-     * 初始化类变量 
      * 
      * @access public
      */
     public function __construct() 
     {
+        parent::__construct();
         $this->_popo        = new ArticlePopo();
+        $this->_popo->setFieldAttribute('tags', 'is_show', false);
+        $this->_popo->setFieldAttribute('tags_name', 'is_show', false);
+        $this->_popo->setFieldAttribute('description', 'is_show', false);
+        $this->_popo->setFieldAttribute('author', 'is_show', false);
         $this->_model       = new ArticleModel($this->_popo);
     }
 
     /**
-     * 组合搜索条件
+     * 视图后驱
+     * 
+     * {@inheritdoc}
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
-     * @access protected
-     * @return String 组合成的搜索条件
      */
-    protected function _combineWhere()
+    protected function _otherJobsAfterAddView()
     {
-        $where          = array('1 = 1');
-        if(1 < intval(HRequest::getParameter('type'))) {
-            array_push($where, '`parent_id` LIKE \'%,' . HRequest::getParameter('type') . ',%\'');
-        }
-        $keywords       = HRequest::getParameter('keywords');
-        if(!$keywords || '关键字...' === $keywords) {
-            return implode(' AND ', $where);
-        }
-        $keywordsWhere  = $this->_getSearchWhere($keywords);
-        if($keywordsWhere) {
-            array_push($where, $keywordsWhere);
-        }
-
-        if(!$where) {
-            return null;
-        }
-
-        return implode(' AND ', $where);
+        parent::_otherJobsAfterAddView();
+        $this->_assignMyCategory();
+        HResponse::setAttribute('status_list', ArticlePopo::$statusMap);
     }
 
     /**
-     * 添加模块视图 
+     * 编辑后驱
      * 
-     * @desc
-     * 
-     * @access public
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
      */
-    public function addview()
-    {  
-        $this->_addview();
-
-        $this->_render('article/info');
+    protected function _otherJobsAfterEditView($record)
+    {
+        parent::_otherJobsAfterEditView($record);
+        $this->_assignParentInfo($record['parent_id']);
+        $this->_assignMyCategory();
+        $this->_assignTags();
+        HResponse::setAttribute('status_list', ArticlePopo::$statusMap);
     }
 
     /**
      * 执行模块的添加 
      * 
-     * @desc
-     * 
      * @access public
      */
     public function add()
     {
-        HRequest::setParameter(
-            'cat_names', 
-            HRequest::getParameter('lookup_checkbox_values')
-        );
         $id     = $this->_add();
-        $this->_addTagRelationship($id);
-        HResponse::succeed($acName . '添加成功！', $this->_getReferenceUrl(2));
-    }
+        $this->_setParentPath($id);
+        $this->_addTagLinkedData($id);
+        $this->_addLangLinkedData($id);
+        //发布的时候才同步
 
-    /**
-     * 编辑动作 
-     * 
-     * @desc
-     * 
-     * @access public
-     */
-    public function editview()
-    {
-        $this->_editview();
-        $record     = HResponse::getAttribute('record');
-        $this->_assignParentInfo($record['parent_id']);
-        $this->_assignMyCategory();
-
-        $this->_render('article/info');
+        HResponse::succeed($acName . '添加成功！', HResponse::url('article'));
     }
 
     /**
@@ -123,55 +114,42 @@ class ArticleAction extends AdminAction
     private function _assignMyCategory()
     {
         $record     = HResponse::getAttribute('record');
-        if(!$record['parent_id']) {
-            return;
-        }
-        $category   = HClass::quickLoadModel('category');
-        $catIds     = array_filter(explode(',', $record['parent_id']));
-        $list       = $category->getAllRows('`id` IN (' . implode(',', $catIds) . ')');
-        $catNodes   = array();
-        foreach($list as $item) {
-            array_push($catNodes, $item['name']);
-        }
-        $record['lookup_parent_id']     = implode(',', $catNodes);
-        HResponse::setAttribute('record', $record);
-    }
 
-    /**
-     * 加载相册
-     * 
-     * @desc
-     * 
-     * @author xjiujiu <xjiujiu@foxmail.com>
-     * @access private
-     */
-    private function _assignAlbum()
-    {
-        $record     = HResponse::getAttribute('record');
-        $linkedData = HClass::quickLoadModel('linkeddata');
-        $linkList   = $linkedData->getAllRows('`hash` = \'' . $record['album_hash'] . '\'');
-        if(empty($linkList)) { return ; } 
-        $resource   = HClass::quickLoadModel('resource');
-        $resourceList   = $resource->getAllRows(HSqlHelper::whereInByListMap('id', 'res_id', $linkList));
-        HResponse::setAttribute('album', $linkList);
-        HResponse::setAttribute('resourceMap', HArray::turnItemValueAsKey($resourceList, 'id'));
+        HResponse::setAttribute(
+            'parent_id_nodes', 
+            $this->_formatToZTreeNodes(HResponse::getAttribute('parent_id_list'), array($record['parent_id']))
+        );
     }
 
     /**
      * 编辑提示动作 
      * 
-     * @desc
-     * 
      * @access public
      */
     public function edit()
     {
-        HRequest::setParameter(
-            'cat_names', 
-            HRequest::getParameter('lookup_checkbox_values')
-        );
         $record     = $this->_edit();
-        HResponse::succeed($acName . HResponse::lang('UPDATE_SUCCESS', false), $this->_getReferenceUrl(2));
+        $this->_setParentPath($record['id']);
+        $this->_addTagLinkedData(HRequest::getParameter('id'));
+        $this->_addLangLinkedData($record['id']);
+
+        HResponse::succeed('更新成功！', HResponse::url('article'));
+    }
+
+    /**
+     * 设置层级
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access private
+     * @param $id 编号
+     */
+    private function _setParentPath($id)
+    {
+        $cat    = $this->_category->getRecordById(HRequest::getParameter('parent_id'));
+        if(!$cat) {
+            throw new HVerifyException('分类不存在，请确认！');
+        }
+        $this->_model->editByWhere(array('parent_path' => $cat['parent_path']), '`id` = ' . $id);
     }
 
     /**
@@ -181,30 +159,44 @@ class ArticleAction extends AdminAction
      * 
      * @access protected
      */
-    protected function _assignParentRootList()
+    protected function _assignAllParentList()
     {
-        HResponse::setAttribute('parentName', 'category');
-        HResponse::setAttribute(
-            'parents', 
-            HClass::quickLoadModel('category')->getAllRows('`parent_id` = 0 OR `parent_id` IS NULL')
-        );
+        $list       = $this->_category->getSubcategoryByIdentifier('article-cat', true);
+        $list       = array_merge($list, $this->_category->getSubcategoryByIdentifier('single-page', true));
+
+        HResponse::setAttribute('parent_id_list', $list);
     }
 
     /**
-     * 执行Lookup功能
+     * 执行额外的删除操作
+     * 
+     * {@inheritdoc}
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
-     * @access public
      */
-    public function lookup()
+    protected function _otherJobsAfterDelete($ids)
     {
-        $category   = HClass::quickLoadModel('category');
-        HResponse::setAttribute('list', $category->getAllRows('`parent_id` < 1'));
-        HResponse::setAttribute('sync_url', HResponse::url('category/aload'));
-
-        $this->_render('common/lookup-tree-checkbox');
+        parent::_otherJobsAfterDelete();
+        $this->_deleteTagsLinkedData($ids);
     }
 
+    /**
+     * 得到上层条件
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
+     * @param $id 编号
+     * @return String 
+     */
+    protected function _getParentWhere($id)
+    {
+        $cat    = $this->_category->getRecordById($id);
+        if(!$cat) {
+            throw new HVerifyException('分类已经不存在，请确认！');
+        }
+
+        return '`parent_path` LIKE \'' . $cat['parent_path'] . '%\'';
+    }
 }
 
 ?>

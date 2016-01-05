@@ -10,10 +10,11 @@
  */
 defined('_HEXEC') or die('Restricted access!');
 
+//引入缓存实例化工厂
+HClass::import('hongjuzi.cache.hcachefactory');
+
 /**
  * 后台管理模块的M层共用方法基类 
- * 
- * 抽取了后台管理模块里的公用方法 
  * 
  * @author 			xjiujiu <xjiujiu@foxmail.com>
  * @package 		app.admin.model
@@ -24,8 +25,6 @@ class BaseModel extends HModel
 
     /**
      * 快捷操作方法 
-     * 
-     * @desc
      * 
      * @access public
      */
@@ -43,8 +42,6 @@ class BaseModel extends HModel
     /**
      * 添加模块记录 
      * 
-     * @desc
-     * 
      * @access public
      * @param  Array $data 需要添加的数据
      * @param  Array $fields 需要添加的数据字段
@@ -56,35 +53,7 @@ class BaseModel extends HModel
     }
 
     /**
-     * 添加方法内部使用
-     * 
-     * @desc
-     * 
-     * @author xjiujiu <xjiujiu@foxmail.com>
-     * @access protected
-     * @param  HPopo $popo 模块的配置对象
-     * @param  Array $data 需要添加的数据
-     * @param  Array $fields 需要添加的数据字段
-     * @return int 影响的行数
-     */
-    protected function _add($popo, $data, $fields = '')
-    {
-        if(empty($fields)) {
-            $fields = array_keys($data);
-            $data   = array_values($data);
-        }
-        $this->_db->getSql()
-            ->table($popo->get('table'))
-            ->fields($fields)
-            ->values($data);
-
-        return $this->_db->add();
-    }
-
-    /**
      * 编辑数据 
-     * 
-     * @desc
      * 
      * @access public
      */
@@ -110,8 +79,6 @@ class BaseModel extends HModel
     /**
      * 删除给定的Id记录 
      * 
-     * @desc
-     * 
      * @access public
      * @param int $id 记录Id
      * @return int 影响行数
@@ -124,8 +91,6 @@ class BaseModel extends HModel
     /**
      * 指定的刪除條件
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
      * @param  String $where 刪除條件
@@ -137,33 +102,7 @@ class BaseModel extends HModel
     }
 
     /**
-     * 得到条件查询记录列表并限制页数及条数  
-     * 
-     * @desc
-     * 
-     * @author xjiujiu <xjiujiu@foxmail.com>
-     * @access public
-     * @param  String | Array<String> $where 需要查找的条件
-     * @param  String String $where 需要查找的条件
-     * @param  int $page 当前的页数
-     * @param  int $perpage = 10 每页显示的记录条数
-     * @return Array<Array<?, ?>
-     */
-    public function getListByWhere($where, $page = 0, $perpage = 10)
-    {
-        return $this->_getList(
-            HPopoHelper::getLinkFields($this->_popo),
-            $where,
-            HPopoHelper::getOrderFields($this->_popo),
-            $page,
-            $perpage
-        );
-    }
-
-    /**
      * 通过链接名称得到单条记录 
-     * 
-     * @desc
      * 
      * @access public
      * @param int $identifier 链接名称
@@ -176,8 +115,6 @@ class BaseModel extends HModel
 
     /**
      * 更新当前信息的浏览次数 
-     * 
-     * @desc
      * 
      * @access public
      * @param int $id 记录ID
@@ -198,63 +135,60 @@ class BaseModel extends HModel
     /**
      * 得到当前记录之前的上一条记录ID 
      * 
-     * @desc
-     * 
      * @access public
      * @param $curRecordId
      * @param int $parentId 当前记录的类型
      * @return array 查找到的结果集
      */
-    public function getPreRecord($curRecordId, $whereParentId)
+    public function getPreRecord($id, $where)
     {
-        $where      = HSqlHelper::mergeWhere(
-            array('id' . '<' . $curRecordId, $whereParentId), 
-            'AND'
-        );
+        $wherePre  = '`id` < ' . $id;
+        $fields     = '`id`, ';
+        $fields    .= $this->_popo->hasField('name') ? '`name`' : '`id` as name';
 
-        return $this->getRecordByWhere($where);
+        $this->_db->getSql()
+            ->table($this->_popo->get('table'))
+            ->fields($fields)
+            ->where(HSqlHelper::mergeWhere(
+                array($where, $wherePre, $this->_getMustWhere()),
+                'AND'
+            ))->limit(1);
+        $record     = $this->_db->select()->getRecord();
+        if(!$record['id']) {
+            return null;
+        }
+        
+        return $this->getRecordById($record['id']);
     }
 
     /**
      * 得到下一条记录ID 
-     * 
-     * @desc
      * 
      * @access public
      * @param int $curRecordId 当前的记录ID
      * @param int $parentId 当前记录的类型
      * @return array  查找到的结果集
      */
-    public function getNextRecord($curRecordId, $whereParentId = '')
+    public function getNextRecord($id, $where = '')
     {
-        $where      = HSqlHelper::mergeWhere(
-            array('id' . '>' . $curRecordId, $whereParentId), 
-            'AND'
-        );
+        $whereNext  = '`id` > ' . $id;
+        $fields     = '`id`, ';
+        $fields    .= $this->_popo->hasField('name') ? '`name`' : '`id` as name';
 
-        return $this->getRecordByWhere($where);
-    }
-
-    /**
-     * 得到类型的总记录数 
-     * 
-     * @desc
-     * 
-     * @access public
-     * @param int $typeId 当前的类型ID
-     * @return int 影响行数
-     */
-    public function getTotalTypeRecords($typeId)
-    {
-        $where  = array('`pass_flag`=2');
-        if(!empty($typeId)) {
-            $where[]    = ' AND `parent_id`=' . $typeId;
+        $this->_db->getSql()
+            ->table($this->_popo->get('table'))
+            ->fields($fields)
+            ->where(HSqlHelper::mergeWhere(
+                array($where, $whereNext, $this->_getMustWhere()),
+                'AND'
+            ))->limit(1);
+        
+        $record     = $this->_db->select()->getRecord();
+        if(!$record['id']) {
+            return null;
         }
-
-        return $this->_getTotalRecords(
-            'count(' . $this->_getPrimaryKey() . ') as total',
-            $where
-        );
+        
+        return $this->getRecordById($record['id']);
     }
 
 }

@@ -1,6 +1,6 @@
 <?php
 
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 /**
  * @author ¾Å¾Å

@@ -2,7 +2,7 @@
 
 /**
  * @version			$Id$
- * @create 			2013-12-20 14:12:37 By xjiujiu 
+ * @create 			2014-04-07 19:04:25 By xjiujiu 
  * @description     HongJuZi Framework
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  */
@@ -59,7 +59,7 @@ class ResourcePopo extends HPopo
         ),'path' => array(
             'name' => '存储位置', 
             'verify' => array('null' => false, 'len' => 255,),
-            'comment' => '请选择允许的类型。','is_show' => true, 'is_file' => true, 'size' => 30, 'type' => '*'
+            'comment' => '请选择允许的类型。','is_show' => true, 'is_file' => true, 'size' => 2, 'type' => '*'
         ),'type' => array(
             'name' => '文件类型', 
             'verify' => array('null' => false, 'len' => 20,),
@@ -68,6 +68,10 @@ class ResourcePopo extends HPopo
             'name' => '文件哈希', 
             'verify' => array('null' => false, 'len' => 40,),
             'comment' => '用于对比文件是否改变','is_show' => true, 
+        ),'total_use' => array(
+            'name' => '使用数', 'default' => '0',
+            'verify' => array('null' => false, 'numeric' => true,),
+            'comment' => '默认为0','is_show' => true, 
         ),'create_time' => array(
             'name' => '创建时间', 
             'verify' => array('null' => false,),

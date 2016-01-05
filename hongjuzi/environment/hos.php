@@ -8,7 +8,7 @@
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 /**
  * 当前程序运行操作系统类 
@@ -46,6 +46,9 @@ class HOs
         }
         if(strpos($_SERVER['HTTP_USER_AGENT'], 'NT 6.2')) {
             return 'Windows 8';
+        }
+        if(strpos($_SERVER['HTTP_USER_AGENT'], 'NT 6.3')) {
+            return 'Windows 8.1';
         }
         if(strpos($_SERVER['HTTP_USER_AGENT'], 'NT 5.0')) {
             return 'Windows 2000';

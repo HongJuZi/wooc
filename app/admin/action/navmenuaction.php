@@ -32,8 +32,81 @@ class NavmenuAction extends AdminAction
      */
     public function __construct() 
     {
+        parent::__construct();
         $this->_popo        = new NavmenuPopo();
+        $this->_popo->setFieldAttribute('extend', 'is_show', false);
         $this->_model       = new NavmenuModel($this->_popo);
+    }
+
+    /**
+     * 加载列表后的任务
+     * 
+     * {@inheritdoc}
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     */
+    protected function _otherJobsAfterList()
+    {
+        parent::_otherJobsAfterList();
+        $this->_assignPositionMap();
+    }
+
+    /**
+     * 加载位置映射
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access private
+     */
+    private function _assignPositionMap()
+    {
+        HResponse::registerFormatMap(
+            'position_id',
+            'name',
+            HArray::turnItemValueAsKey(
+                $this->_category->getSubCategoryByIdentifier('navmenu-position', false),
+                'id'
+            )
+        );
+    }
+
+    /**
+     * 加载位置列表
+     *
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
+     */
+    protected function _assignPositionList()
+    {
+        HResponse::setAttribute(
+            'position_id_list',
+            $this->_category->getSubCategoryByIdentifier('navmenu-position', false)
+        );
+    }
+
+    /**
+     * 加载添加其它内容
+     * 
+     * {@inheritdoc}
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     */
+    protected function _otherJobsAfterAddView($id)
+    {
+        parent::_otherJobsAfterAddView($id);
+        $this->_assignPositionList();
+    }
+
+    /**
+     * 加载编辑其它的任务
+     * 
+     * {@inheritdoc}
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     */
+    protected function _otherJobsAfterEditView($record)
+    {
+        parent::_otherJobsAfterEditView($record);
+        $this->_assignPositionList();
     }
 
 }

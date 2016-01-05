@@ -9,7 +9,7 @@
  *                  All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 /**
  * 定义数据操作的基本接口 

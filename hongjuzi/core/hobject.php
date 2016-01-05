@@ -5,7 +5,7 @@
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 /**
  * 框架基类 
@@ -40,8 +40,28 @@ class HObject
      */
     public static function GC($item = '')
     {
-        return empty($item) || !isset(self::$_hConfigs[$item]) ? null : self::$_hConfigs[$item];
+        return self::GCAttr($item);
     }
+
+    /**
+     * 得到配置项值的快捷调用方法 
+     * 
+     * 获取配置项的对应值内容 
+     * 
+     * @access public static
+     * @param sting $configItem 配置项名称
+     * @param String $attr 配置的属性
+     * @return mix
+     */
+    public static function GCAttr($item = '', $attr = '')
+    {
+        if(empty($item) || !isset(self::$_hConfigs[$item])) {
+            return null;
+        }
+
+        return empty($attr)  ? self::$_hConfigs[$item] : self::$_hConfigs[$item][$attr];
+    }
+
 
     /**
      * 加载系统默认配置
@@ -72,6 +92,34 @@ class HObject
         if(file_exists($appCfgPath)) {
             self::$_hConfigs    = array_merge(self::$_hConfigs, require_once($appCfgPath));
         }
+    }
+
+    /**
+     * 加载网站对应的配置
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public static
+     * @param $site 对应网站，默认为SITE_URL null，要包含http://www.xxx.com/
+     */
+    public static function loadSiteCfg($site = null)
+    {
+        if(IS_CLI) { return; }
+        $site           = null === $site ? SITE_URL : $site;
+        $site           = str_replace('http://', '', strtolower($site), $site);
+        $site           = strtr($site, array('/' => '', '.' => '-'));
+        $siteCfgPath    = ROOT_DIR . 'config/sites/' . $site . '.php';
+        if(file_exists($siteCfgPath)) {
+            self::$_hConfigs    = array_merge(self::$_hConfigs, require_once($siteCfgPath));
+            return;
+        }
+        $content        = file_get_contents(ROOT_DIR . HObject::GC('CONFIG_TPL'));
+        file_put_contents(
+            $siteCfgPath, 
+            strtr(
+                $content, 
+                array('{site_url}' => SITE_URL, '{site}' => $site, '{salt}' => HString::getUUID())
+            )
+        );
     }
 
     /**

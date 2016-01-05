@@ -32,6 +32,7 @@ class ResourceAction extends AdminAction
      */
     public function __construct() 
     {
+        parent::__construct();
         $this->_popo        = new ResourcePopo();
         $this->_model       = new ResourceModel($this->_popo);
     }

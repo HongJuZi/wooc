@@ -9,6 +9,7 @@
 defined('_HEXEC') or die('Restricted access!');
 
 //导入引用文件
+HClass::import('app.oauth.action.auserAction');
 HClass::import('config.popo.tagspopo, app.public.action.PublicAction, model.tagsmodel');
 
 /**
@@ -22,6 +23,18 @@ HClass::import('config.popo.tagspopo, app.public.action.PublicAction, model.tags
  */
 class TagsAction extends PublicAction
 {
+
+    /**
+     * {@inheritDoc}
+     */
+    public function beforeAction()
+    {
+        try {
+            AuserAction::isLogined();
+        } catch(HVerifyException $ex) {
+            HResponse::redirect(HResponse::url('enter', '', 'admin'));
+        }
+    }
 
     /**
      * 构造函数 
@@ -39,26 +52,25 @@ class TagsAction extends PublicAction
     /**
      * 自学习 
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
      */
     public function autolearn()
     {
         HVerify::isAjax();
+        HVerify::isEmpty(HRequest::getParameter('rel_model'), '当前模块');
         if(!HRequest::getParameter('tag')) {
             HResponse::json(array('rs' => true));
             return;
         }
         $record = $this->_model->getRecordByWhere('`name` = \'' . HRequest::getParameter('tag') . '\'');
         if($record) {
-            $this->_addTagRelationship($record['id']);
+            $this->_addTagLinkedData($record['id']);
+            $this->_updateTagHots($record['id'], intval($record['hots']) + 1);
             HResponse::json(array('rs' => true, 'id' => $record['id']));
             return;
         }
         $data   = array(
-            'sort_num' => $_SERVER['REQUEST_TIME'],
             'name' => HRequest::getParameter('tag'),
             'author' => HSession::getAttribute('id', 'user')
         );
@@ -66,29 +78,32 @@ class TagsAction extends PublicAction
         if(1 > $tagId) {
             throw new HRequestException('标签添加失败！');
         }
-        $this->_addTagRelationship($tagId);
+        $this->_addTagLinkedData($tagId);
         HResponse::json(array('rs' => true, 'id' => $tagId));
     }
 
     /**
      * 添加标签外键关系数据
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access private
      * @param  int $relId 关联ID
      */
-    private function _addTagRelationship($itemId)
+    private function _addTagLinkedData($itemId)
     {
         if(!HRequest::getParameter('id')) {
             return;
         }
-        $relationship   = HClass::quickLoadModel('relationship');
-        $relationship->add(array(
+        $linkedData     = HClass::quickLoadModel('linkedData');
+        $linkedData->setRelItemModel(HRequest::getParameter('rel_model'), 'tags');
+        $where          = '`item_id` = ' . $itemId 
+            . ' AND `rel_id` = ' . HRequest::getParameter('id');
+        if($linkedData->getRecordByWhere($where)) {
+            return;
+        }
+        $linkedData->add(array(
             'item_id' => $itemId,
             'rel_id' => HRequest::getParameter('id'),
-            'model' => !HRequest::getParameter('model') ? HResponse::getAttribute('HONGJUZI_APP') : HRequest::getParameter('model'),
             'author' => HSession::getAttribute('id', 'user')
         ));
     }
@@ -96,14 +111,13 @@ class TagsAction extends PublicAction
     /**
      * 删除标签
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
      */
     public function aremovetag()
     {
         HVerify::isAjax();
+        HVerify::isEmpty(HRequest::getParameter('rel_model'), '当前模块');
         if(!HRequest::getParameter('tag') || !HRequest::getParameter('id')) {
             HResponse::json(array('rs' => true));
             return;
@@ -115,23 +129,34 @@ class TagsAction extends PublicAction
             $this->autolearn();
             return;
         }
-        $relationship   = HClass::quickLoadModel('relationship');
-        $whereAuthor    = '';
-        if(!in_array(HSession::getAttribute('actor', 'user'), array('root', 'editor'))) {
-            $whereAuthor    = ' AND `author` = ' . HSession::getAttribute('id', 'user');
-        }
-        $relationship->deleteByWhere(
-            '`item_id` = ' . $tagInfo['id'] .
-            ' AND `rel_id` = ' . HRequest::getParameter('id') . 
-            $whereAuthor
-        );
+        $linkedData = HClass::quickLoadModel('linkedData');
+        $where      = '`item_id` = ' . $tagInfo['id'] 
+            . ' AND `rel_id` = ' . HRequest::getParameter('id');
+        $linkedData->setRelItemModel(HRequest::getParameter('rel_model'), 'tags')
+            ->deleteByWhere($where);
+        $this->_updateTagHots($tagInfo['id'], intval($tagInfo['hots']) - 1);
+
         HResponse::json(array('rs' => true));
     }
 
     /**
-     * 自动匹配
+     * 更新标签使用数量
      * 
-     * @desc
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access private
+     * @param  $id 标签编号
+     * @param  $hots 使用数量
+     */
+    private function _updateTagHots($id, $hots)
+    {
+        $hots       = 0 > $hots ? 0 : $hots;
+        if(1 > $this->_model->edit(array('id' => $id, 'hots' => $hots))) {
+            throw new HRequestException('更新标签数量失败，请稍后再试！');
+        }
+    }
+
+    /**
+     * 自动匹配
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public

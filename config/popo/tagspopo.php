@@ -2,7 +2,7 @@
 
 /**
  * @version			$Id$
- * @create 			2013-12-20 13:12:10 By xjiujiu 
+ * @create 			2015-03-08 12:03:05 By xjiujiu 
  * @description     HongJuZi Framework
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  */
@@ -48,34 +48,27 @@ class TagsPopo extends HPopo
     /**
      * @var array $_fields 模块字段配置 
      */
-    protected $_fields          = array('sort_num' => array(
-            'name' => '排序', 
+    protected $_fields          = array('id' => array(
+            'name' => '编号', 
             'verify' => array(),
-            'comment' => '只能是数字，默认为：当前时间。','is_show' => true, 'is_order' => 'ASC', 
-        ),'id' => array(
-            'name' => 'ID', 
-            'verify' => array(),
-            'comment' => '只能是数字','is_show' => true, 'is_order' => 'DESC', 
+            'comment' => '系统自动增加','is_show' => true, 
+            'is_order' => 'DESC'
         ),'name' => array(
             'name' => '名称', 
-            'verify' => array('null' => false, 'len' => 255,),
-            'comment' => '长度范围：2~255。','is_show' => true, 'is_search' => true, 
+            'verify' => array('null' => false, 'len' => 200,),
+            'comment' => '标签名称','is_show' => true, 
         ),'hots' => array(
-            'name' => '使用量', 'default' => '0',
+            'name' => '使用总数', 'default' => '0',
             'verify' => array('null' => false, 'numeric' => true,),
-            'comment' => '被使用的次数','is_show' => true, 
-        ),'top' => array(
-            'name' => '置顶状态', 'default' => '否',
-            'verify' => array('null' => false, 'options' => array('是','否'),),
-            'comment' => '请从下拉选择','is_show' => true, 
-        ),'author' => array(
-            'name' => '维护员', 'default' => '1',
-            'verify' => array('null' => false, 'numeric' => true,),
-            'comment' => '上一次修改的用户','is_show' => true, 
+            'comment' => '标签被使用总数','is_show' => true, 
         ),'create_time' => array(
             'name' => '创建时间', 
             'verify' => array('null' => false,),
-            'comment' => '格式：2013-04-10','is_show' => true, 
+            'comment' => '记录创建时间','is_show' => true, 
+        ),'author' => array(
+            'name' => '维护人', 'default' => '1',
+            'verify' => array('null' => false, 'numeric' => true,),
+            'comment' => '信息最后一次发布人员','is_show' => false, 
         ),);
 
 }

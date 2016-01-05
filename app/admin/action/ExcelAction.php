@@ -9,19 +9,17 @@
 defined('_HEXEC') or die('Restricted access!');
 
 //导入引用文件
-HClass::import('app.admin.action.AdminBaseAction');
+HClass::import('app.admin.action.AdministratorAction');
 HClass::import('vendor.excel.PHPExcel', false);
 
 /**
  * Excel数据导入工具
  * 
- * @desc
- * 
  * @author xjiujiu <xjiujiu@foxmail.com>
  * @package app.admin.action
  * @since 1.0.0
  */
-class ExcelAction extends AdminBaseAction
+class ExcelAction extends AdministratorAction
 {
 
     /**
@@ -31,8 +29,6 @@ class ExcelAction extends AdminBaseAction
 
     /**
      * 构造函数
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public

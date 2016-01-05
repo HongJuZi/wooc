@@ -2,7 +2,7 @@
 
 /**
  * @version			$Id$
- * @create 			2013-08-05 13:08:18 By xjiujiu
+ * @create 			2015-10-15 10:10:08 By xjiujiu
  * @description     HongJuZi Framework
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  */
@@ -32,6 +32,7 @@ class MessageAction extends AdminAction
      */
     public function __construct() 
     {
+        parent::__construct();
         $this->_popo        = new MessagePopo();
         $this->_model       = new MessageModel($this->_popo);
     }

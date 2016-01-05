@@ -11,7 +11,7 @@ defined('_HEXEC') or die('Restricted access!');
 return array (
     'PAGE_STYLE' => 'blue',  //分页风格
     'CUR_THEME' => 'default',     //当前使用的模板
-    'DEBUG' => false
+    'DEBUG' => false 
 );
 
 ?>

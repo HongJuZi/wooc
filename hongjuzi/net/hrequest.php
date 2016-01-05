@@ -8,7 +8,7 @@
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die('Restricted access!');
+defined('HJZ_DIR') or die('Restricted access!');
 
 /**
  * 对Http的Request请求封装 
@@ -30,8 +30,6 @@ class HRequest extends HObject
     /**
      * 设置变量的值 
      * 
-     * @desc
-     * 
      * @access public static
      * @param  String $attr 属性名
      * @param  String $value 属性值
@@ -48,12 +46,8 @@ class HRequest extends HObject
     /**
      * 通过关联数组的形式来赋值当前的请求变量
      * 
-     * @desc
-     * 
      * @access public static
      * @param  array $params 当前的请求变量数组
-     * @return void 
-     * @exception none
      */
     public static function setParameterByArray(array $params)
     {
@@ -69,23 +63,21 @@ class HRequest extends HObject
      * 
      * @access public static
      * @param  String $attr 当前的属性名，默认为空，返回所有的链接内容
-     * @param  boolea $trim 是否去掉两端的空格，默认为: true
+     * @param  boolea $xss 是否过滤HTML XSS攻击，默认为: true
      * @return mix 请求的值
      */
-    public static function getParameter($attr = null, $trim = true)
+    public static function getParameter($attr = null, $xss = false)
     {
         if(null === $attr) { return self::$_parameters; }
         switch($_SERVER['REQUEST_METHOD']) {
-            case 'GET': return self::_get($attr, $trim);
-            case 'POST': return self::_post($attr, $trim);
+            case 'GET': return self::_get($attr, $xss);
+            case 'POST': return self::_post($attr, $xss);
             default: return null;
         }
     }
 
     /**
      * 删除指定的请求变量
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public static
@@ -106,16 +98,17 @@ class HRequest extends HObject
      * 
      * @access protected static
      * @param string $attr 属性名称
-     * @param  boolea $trim 是否去掉两端的空格，默认为: true
+     * @param  boolea $xss 是否去掉XSS攻击，默认为: false
      * @return String 当前属性值
      */
-    protected static function _get($attr, $trim = true)
+    protected static function _get($attr, $xss = false)
     {
         if(isset(self::$_parameters[$attr])) {
             return self::$_parameters[$attr];
         }
         if(isset($_GET[$attr])) {
-            $temp   = true === $trim && !is_array($_GET[$attr]) ? trim($_GET[$attr]) : $_GET[$attr];
+            $temp   = !is_array($_GET[$attr]) ? trim($_GET[$attr]) : $_GET[$attr];
+            $temp   = $xss === true ? HString::filterHtmlXSS($temp) : $temp;
             self::$_parameters[$attr]    = HString::filterSqlInjection($temp);
             return self::$_parameters[$attr];
         }
@@ -130,16 +123,17 @@ class HRequest extends HObject
      * 
      * @access protected static
      * @param string $attr 属性名称
-     * @param  boolea $trim 是否去掉两端的空格，默认为: true
+     * @param  boolea $xss 是否去掉XSS攻击，默认为: false
      * @return mix 当前请求值
      */
-    protected static function _post($attr, $trim = true)
+    protected static function _post($attr, $xss = false)
     {
         if(isset(self::$_parameters[$attr])) {
             return self::$_parameters[$attr];
         }
         if(isset($_POST[$attr])) {
-            $temp   = true === $trim && !is_array($_POST[$attr]) ? trim($_POST[$attr]) : $_POST[$attr];
+            $temp   = !is_array($_POST[$attr]) ? trim($_POST[$attr]) : $_POST[$attr];
+            $temp   = $xss === true ? HString::filterHtmlXSS($temp) : $temp;
             self::$_parameters[$attr]    = HString::filterSqlInjection($temp);
             return self::$_parameters[$attr];
         }
@@ -149,8 +143,6 @@ class HRequest extends HObject
 
     /**
      * 检测是否有请求给定的变量
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
@@ -170,7 +162,6 @@ class HRequest extends HObject
      * @param string $attr 属性名 
      * @access public static
      * @return mix 
-     * @exception none
      */
     public static function getFiles($attr)
     {
@@ -189,12 +180,15 @@ class HRequest extends HObject
      * 
      * @access public static
      * @return string 
-     * @exception none
      */
     public static function getPathInfo()
     {
         $startLoc   = preg_match('/^\/+/', $_SERVER['PATH_INFO']) ? 1 : 0;
-        return mb_substr($_SERVER['PATH_INFO'], $startLoc, strlen($_SERVER['PATH_INFO']), 'utf8');
+
+        return mb_substr(
+            $_SERVER['PATH_INFO'], $startLoc, 
+            strlen($_SERVER['PATH_INFO']), 'utf8'
+        );
     }
 
     /**
@@ -205,7 +199,6 @@ class HRequest extends HObject
      * 
      * @access public static
      * @return string 查询的字符串
-     * @exception none
      */
     public static function getQueryString()
     {
@@ -219,7 +212,6 @@ class HRequest extends HObject
      * 
      * @access public static
      * @return string 
-     * @exception none
      */
     public static function getUri()
     {
@@ -233,11 +225,29 @@ class HRequest extends HObject
      * 
      * @access public static
      * @return string 
-     * @throws none
      */
-    public static function getCurUrl()
+    public static function getCurUrl($filterParams = null, $query = null)
     {
         $curUrl     = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        if($filterParams) {
+            $urlInfo    = parse_url($curUrl);
+             $curUrl    = $urlInfo['host'] . $urlInfo['path'];
+            if($urlInfo['query']) {
+                parse_str($urlInfo['query'], $params);
+                foreach($filterParams as $attr) {
+                    unset($params[$attr]);
+                }
+                $curUrl .= '?' . http_build_query($params); 
+            }
+        }
+        if($query) {
+            if(false === strpos($curUrl, '?')) {
+                $curUrl .= '?' . $query;
+            } else {
+                $loc    = strpos($curUrl, '?') + 1;
+                $curUrl .= $loc === strlen($curUrl) ? $query : '&' . $query;
+            }
+        }
         if('on' == $_SERVER['HTTPS']) {
             return 'https://' . $curUrl;
         } 
@@ -247,8 +257,6 @@ class HRequest extends HObject
 
     /**
      * 得到用户的IP
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public static
@@ -292,32 +300,17 @@ class HRequest extends HObject
 
         return $token;
     }
-    
-     /**
-     * 请求一个URL地址
-     * 
-     * @desc
-     * 
-     * @author xjiujiu <xjiujiu@foxmail.com>
-     * @access public
-     * @param  String $url 当前的网站链接
-     * @return String 得到的网站内容 
-     */
-    public static function requestUrl($url)
-    {
-        $ch   = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_TIMEOUT, $delay);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch,CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)');
-        curl_setopt($ch, CURLOPT_NOSIGNAL, true);
-        curl_setopt($ch, CURLOPT_FELLOWLOCATION, 1);
-        $content= curl_exec($ch);
-        curl_close($ch);
 
-        return $content;
-    }
+    /**
+     * @var private static $_header 请求的头报文
+     */
+    private static $_header     = array(
+        "Accept: text/xml,application/xml,application/xhtml+xml,
+        text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5",
+        "Accept-Language: ru-ru,ru;q=0.7,en-us;q=0.5,en;q=0.3",
+        "Accept-Charset: windows-1251,utf-8;q=0.7,*;q=0.7",
+        "Keep-Alive: 300"
+    );
     
     /**
      * combineURL
@@ -332,9 +325,7 @@ class HRequest extends HObject
         if(empty($keysArr)) {
             return $baseUrl;
         }
-        $combined = $baseURL . '?';
         $valueArr = array();
-
         foreach($keysArr as $key => $val){
             $valueArr[] = $key . '=' . $val;
         }
@@ -343,71 +334,90 @@ class HRequest extends HObject
     }
 
     /**
+     * get方式请求资源
+     *
+     * @param string $url     基于的baseUrl
+     * @param array $keysArr  参数列表数组      
+     * @return string         返回的资源内容
+     */
+    public static function getRequest($url, $keysArr = null)
+    {
+        $combined = self::combineURL($url, $keysArr);
+
+        return self::getContents($combined);
+    }
+
+    /**
      * get_contents
      * 服务器通过get请求获得内容
      * @param string $url       请求的url,拼接后的
      * @return string           请求返回的内容
      */
-    public function get_contents($url)
+    public static function getContents($url, $refer = 'http://www.baidu.com')
     {
-        if(ini_get('allow_url_fopen') == '1') {
-            $response   = file_get_contents($url);
-        } else {
-            $ch         = curl_init();
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-            curl_setopt($ch, CURLOPT_URL, $url);
-            $response   = curl_exec($ch);
-            curl_close($ch);
+        if (ini_get("allow_url_fopen") == "1") {
+            return file_get_contents($url);
         }
-        //-------请求为空
-        if(empty($response)) {
-            throw new HRequestException('无法访问到资源！' . $url);
-        }
+        $ch         = curl_init();
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_USERAGENT, self::$useragentmap[ceil(rand(0, 7))]);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);       //连接超时时间
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);              //数据传输的最大允许时间
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_REFERER, $refer);
+        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
+        $response   = curl_exec($ch);
+        curl_close($ch);
 
         return $response;
     }
 
     /**
-     * get
-     * get方式请求资源
-     * @param string $url     基于的baseUrl
-     * @param array $keysArr  参数列表数组      
-     * @return string         返回的资源内容
-     */
-    public function get($url, $keysArr = null)
-    {
-        return $this->get_contents(self::combineURL($url, $keysArr));
-    }
-
-    /**
      * post请求数据
-     *
-     * post方式请求资源
      *
      * @param string $url       基于的baseUrl
      * @param array $keysArr    请求的参数列表
      * @param int $flag         标志位
      * @return string           返回的资源内容
      */
-    public static function post($url, $keysArr, $flag = 0){
-
-        $ch = curl_init();
-        if(! $flag) curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+    public static function post($url, $keysArr, $ssl = 0)
+    {
+        if(false === strpos($url, '?')) {
+            $url	.= '?' . http_build_query($keysArr);
+        } else {
+            $url	.= '&' . http_build_query($keysArr);
+        }
+        $ch		= curl_init();
+        if(!$ssl) curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE); 
         curl_setopt($ch, CURLOPT_POST, TRUE); 
+        curl_setopt($ch, CURLOPT_USERAGENT, self::$useragentmap[ceil(rand(0, 6))]);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $keysArr); 
+        curl_setopt($ch, CURLOPT_REFERER, $refer);
         curl_setopt($ch, CURLOPT_URL, $url);
         $ret = curl_exec($ch);
-
         curl_close($ch);
+
         return $ret;
     }
 
     /**
+     * @var private static  $useragentmap   浏览器伪装
+     */
+    private static  $useragentmap   = array(
+        'Mozilla/5.0 (Windows NT 5.1; rv:21.0) Gecko/20100101 Firefox/21.0',
+        'Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36',
+        'Opera/9.27 (Windows NT 5.2; U; zh-cn)',
+        'Opera/8.0 (Macintosh; PPC Mac OS X; U; en)',
+        'Mozilla/5.0 (Macintosh; PPC Mac OS X; U; en) Opera 8.0',
+        'Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Version/3.1 Safari/525.13',
+        'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0) ',
+        'Baiduspider+(+http://www.baidu.com/search/spider.htm)'
+    );
+
+    /**
      * 并发请求URL 
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public static
@@ -419,22 +429,13 @@ class HRequest extends HObject
     {
         $queue = curl_multi_init();
         $map = array();
-        $useragentmap   = array(
-            'Mozilla/5.0 (Windows NT 5.1; rv:21.0) Gecko/20100101 Firefox/21.0',
-            'Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36',
-            'Opera/9.27 (Windows NT 5.2; U; zh-cn)',
-            'Opera/8.0 (Macintosh; PPC Mac OS X; U; en)',
-            'Mozilla/5.0 (Macintosh; PPC Mac OS X; U; en) Opera 8.0',
-            'Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Version/3.1 Safari/525.13',
-            'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0) '
-        );
         foreach ($urls as $key => $url) {
             $ch     = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_TIMEOUT, $delay);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_HEADER, 0);
-            curl_setopt($ch,CURLOPT_USERAGENT, $useragentmap[ceil(rand(0, 6))]);
+            curl_setopt($ch,CURLOPT_USERAGENT, self::$useragentmap[ceil(rand(0, 6))]);
             curl_setopt($ch, CURLOPT_NOSIGNAL, true);
             curl_setopt($ch, CURLOPT_FELLOWLOCATION, 1);
             curl_multi_add_handle($queue, $ch);
@@ -463,6 +464,91 @@ class HRequest extends HObject
         curl_multi_close($queue);
         
         return $responses;
+    }
+
+    /**
+     *  检测是否为机器人
+     * 
+     * @desc
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public static
+     * @return Boolean 是否为机器人
+     */
+    public static function isRobot()
+    {
+        $agent  = strtolower($_SERVER['HTTP_USER_AGENT']);
+        if (empty($agent)) {
+            return false;
+        } 
+        $spiderSite  = array(
+            'tencenttraveler', 'baiduspider+', 'baidugame',
+            'googlebot', 'msnbot', 'sosospider+', 'sogou web spider',
+            'ia_archiver', 'yahoo! slurp', 'youdaobot', 'yahoo slurp',
+            'msnbot', 'java (often spam bot)', 'baiduspider',
+            'voila', 'yandex bot', 'bspider', 'twiceler', 'sogou spider',
+            'speedy spider', 'google adsense', 'heritrix', 'python-urllib',
+            'alexa (ia archiver)', 'ask', 'exabot', 'custo', 'outfoxbot/yodaobot',
+            'yacy', 'surveybot', 'legs', 'lwp-trivial',
+            'nutch', 'stackrambler', 'the web archive (ia archiver)',
+            'perl tool', 'mj12bot', 'netcraft', 'msiecrawler',
+            'wget tools', 'larbin', 'fish search',
+        );
+        foreach($spiderSite as $val) {
+            if(strpos($agent, $str) !== false) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /*
+     *功能：php完美实现下载远程图片保存到本地
+     *参数：文件url,保存文件目录,保存文件名称，使用的下载方式
+     *当保存文件名称为空时则使用远程文件原来的名称
+     */
+    public static function download($url, $dir = '', $name = '', $isRand = 0)
+    {
+        if(empty($url)){
+            throw new HVerifyException('链接地址不能为空！');
+        }
+        if($name === '') {//保存文件名
+            $ext    = strrchr($url, '.');
+            $rand   = '';
+            if($isRand) {
+                $rand   = rand(pow(10,2), pow(10,3)-1);
+            }
+            $name   = time() . $rand . $ext;
+        }
+        //创建保存目录
+        if(!file_exists($dir)) {
+            throw new HVerifyException('目录不存在！');
+        }
+        //获取远程文件所采用的方法 
+        if($type){
+            $ch      = curl_init();
+            $timeout = 5;
+            curl_setopt($ch, CURLOPT_URL,$url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT,$timeout);
+            $file   = curl_exec($ch);
+            curl_close($ch);
+        } else {
+            ob_clean();
+            ob_start(); 
+            readfile($url);
+            $file   = ob_get_contents(); 
+            ob_end_clean(); 
+        }
+        //$size=strlen($file);
+        //文件大小 
+        $fp2    = @fopen($dir.$name,'a');
+        fwrite($fp2, $file);
+        fclose($fp2);
+        unset($file, $url);
+
+        return $name;
     }
 
 }

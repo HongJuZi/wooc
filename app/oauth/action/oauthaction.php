@@ -8,28 +8,26 @@
  */
 defined('_HEXEC') or die('Restricted access!');
 
+HClass::import('app.base.action.baseaction');
+
 /**
  * 用户认证基础类
- * 
- * @desc
  * 
  * @author xjiujiu <xjiujiu@foxmail.com>
  * @package app.oauth.action
  * @since 1.0.0
  */
-class OAuthAction extends HAction
+class OAuthAction extends BaseAction
 {
 
     /**
      * 设置用户登陆信息
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
      * @param  Array $userInfo 当前用户的信息
      */
-    protected static function _setUserLoginInfo($userInfo)
+    protected function _setUserLoginInfo($userInfo)
     {
         HSession::setAttributeByDomain($userInfo, 'user');
         HSession::setAttribute('time', (time() + 7200), 'user');
@@ -38,13 +36,11 @@ class OAuthAction extends HAction
     /**
      * 设置用户权限
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
      * @param int $parentId 用户所属的角色
      */
-    protected static function _setUserRights($parentId)
+    protected function _setUserRights($parentId)
     {
         $actor      = HClass::quickLoadModel('actor');
         $actorInfo  = $actor->getRecordById($parentId);
@@ -55,8 +51,6 @@ class OAuthAction extends HAction
 
     /**
      * 得到会员角色信息
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected

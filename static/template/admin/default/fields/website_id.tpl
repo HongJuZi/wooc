@@ -7,6 +7,5 @@
                     <option value="<?php echo $type['identifier']; ?>"><?php echo $type['name']; ?></option>
                     <?php  }?>
                 </select>
-				<span class="help-inline"><?php echo $popo->getFieldComment('website_id'); ?></span>
             </div>
 		</div>

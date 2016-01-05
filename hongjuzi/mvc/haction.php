@@ -8,7 +8,7 @@
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 /**
  * 框架的动作基类 
@@ -53,27 +53,10 @@ class HAction extends HObject
     public function afterAction() { }
 
     /**
-     * 验证用户搜索内容 
-     * 
-     * @desc
-     * 
-     * @access protected
-     * @return void
-     * @exception HHVerifyException 验证异常 
-     */
-    protected function _verifySearch()
-    {
-        HVerify::isEmptyNotZero(HRequest::getParameter('keywords'), '搜索关键字不能为空！');
-    }
-
-    /**
      * 上传模块标志图 
-     * 
-     * @desc
      * 
      * @access protected
      * @param  HPopo 需要上传的配置对象
-     * @return void
      * @exception HRequestException 
      */
     protected function _uploadFile($popo = '')
@@ -84,37 +67,55 @@ class HAction extends HObject
             if(!HRequest::getFiles($field)) {
                 continue;
             }
-            $uploadFile      = HRequest::getFiles($field);
-            if(empty($uploadFile['name'])) {
+            $path   = $this->_uploadFileByCfg($field, $uploadFileCfg);
+            if(null === $path) {
                 continue;
             }
-            if($uploadFile['error']) {
-                throw new HRequestException('上传出错，请确认是否磁盘空间不足，或上传的文件已经不存在！');
-            }
-            $hUploader          = new HUploader(
-                HObject::GC('RES_DIR') . DS . $this->_popo->modelEnName,
-                $uploadFileCfg['size'],
-                $uploadFileCfg['type'],
-                ROOT_DIR
-            );
-            $uploadedInfo       = $hUploader->uploader($uploadFile, $uploadFileCfg['isGenDateDir']);
-            if(isset($uploadedInfo['error'])) {
-                if(!empty($uploadedInfo['error'])) {
-                    throw new HRequestException(($uploadedInfo['error']));
-                }
-            }
-            if(!empty($uploadedInfo['path']) && isset($uploadFileCfg['zoom'])) {
-                $this->_zoomImage($uploadedInfo['path'], $uploadFileCfg['zoom']);
-            }
-            $this->_deleteUploadFiles(HRequest::getParameter('old_' . $field), $uploadFileCfg);
-            HRequest::setParameter($field, HString::DSToSlash($uploadedInfo['path']));
+
+            HRequest::setParameter($field, $path);
         }
     }
 
     /**
-     * 缩放图片
+     * 通过指定配置上传文件
      * 
-     * @desc
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
+     * @param  String $field 字段
+     * @param  Array $uploadFileCfg 配置信息，如大小、类型、缩放等
+     * @return 上传的存储路径，相对于ROOT_DIR
+     */
+    protected function _uploadFileByCfg($field, $uploadFileCfg)
+    {
+        $uploadFile      = HRequest::getFiles($field);
+        if(empty($uploadFile['name'])) {
+            return null;
+        }
+        if($uploadFile['error']) {
+            throw new HRequestException('上传出错，请确认是否磁盘空间不足，或上传的文件已经不存在！');
+        }
+        $hUploader          = new HUploader(
+            HObject::GC('RES_DIR') . DS . $this->_popo->modelEnName,
+            $uploadFileCfg['size'],
+            $uploadFileCfg['type'],
+            ROOT_DIR
+        );
+        $uploadedInfo       = $hUploader->uploader($uploadFile, $uploadFileCfg['isGenDateDir']);
+        if(isset($uploadedInfo['error'])) {
+            if(!empty($uploadedInfo['error'])) {
+                throw new HRequestException(($uploadedInfo['error']));
+            }
+        }
+        if(!empty($uploadedInfo['path']) && isset($uploadFileCfg['zoom'])) {
+            $this->_zoomImage($uploadedInfo['path'], $uploadFileCfg['zoom']);
+        }
+        $this->_deleteUploadFiles(HRequest::getParameter('old_' . $field), $uploadFileCfg);
+
+        return HString::DSToSlash($uploadedInfo['path']);
+    }
+
+    /**
+     * 缩放图片
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
@@ -128,6 +129,10 @@ class HAction extends HObject
         $hImageZoom     = new HImageZoom(ROOT_DIR . $src);
         foreach($zoomCfg as $type => $zoomSize) {
             try {
+                if(false !== strpos($type, 'iszoom')) {
+                    $hImageZoom->zoom($zoomSize[0], $zoomSize[1], $type);
+                    continue;
+                }
                 $hImageZoom->zoom($zoomSize[0], $zoomSize[1], $type);
             } catch(HIOException $ex) {
                 $this->_deleteUploadFiles($src, $uploadFileCfg);
@@ -139,11 +144,8 @@ class HAction extends HObject
     /**
      * 删除当前记录里使用到的文件
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
-     * @return void
      */
     protected function _deleteFiles($record, $popo = null)
     {
@@ -156,13 +158,10 @@ class HAction extends HObject
     /**
      * 删除上传的缩放文件
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
      * @param  String $path 当前上传的文件
      * @param  Array<String, String> $zoomCfg 缩放文件配置
-     * @return void 
      * @exception HIOException 文件删除失败异常
      */
     protected function _deleteUploadFiles($path, $uploadFileCfg = '')
@@ -181,16 +180,14 @@ class HAction extends HObject
     /**
      * 得到当前的访问页位置 
      * 
-     * @desc
-     * 
      * @access protected
      * @param int $totalPages 总的页数
      * @return int 当前页码
      */
-    protected function _getPageNumber($totalPages)
+    protected function _getPageNumber($totalPages = null)
     {
         $page   = intval(HRequest::getparameter('page'));
-        if($page < 1 || $page > $totalPages) {
+        if($page < 1 || ($totalPages !== null && $page > $totalPages)) {
             return 0;
         }
 
@@ -200,8 +197,6 @@ class HAction extends HObject
     /**
      * 生成分页部分的HTML代码 
      * 
-     * @desc
-     * 
      * @access protected
      * @param int $curPage 当前访问页
      * @param int $totalPages 总记录条数
@@ -210,13 +205,11 @@ class HAction extends HObject
      */
     protected function _genPageHtml($curPage, $totalPages, $paramName = 'page')
     {
-        HClass::import('hongjuzi.utils.HPage');
-        $hPage      = new HPage(
-            $curPage,
-            $totalPages,
-            $paramName,
-            HObject::GC('PAGE_STYLE')
-        );
+        HClass::import('hongjuzi.utils.page.HPageFactory');
+        $hPage      = HPageFactory::getInstance(HObject::GC('PAGE_STYLE'));
+        $hPage->setTotalPages($totalPages)
+            ->setCurPage($curPage)
+            ->setParamName($paramName);
 
         return $hPage->getPageHtml();
     }
@@ -224,15 +217,16 @@ class HAction extends HObject
     /**
      * 得到搜索执行的条件SQL部分 
      * 
-     * @desc
-     * 
      * @access protected
      * @param string $keywords 关键字
      * @return string 关键字条件
      */
     protected function _getSearchWhere($keywords)
     {
-        if(true == preg_match('/^\/(\d+)$/i', $keywords, $matchs)) {
+        if(!$keywords) {
+            return null;
+        }
+        if(true == preg_match('/^=(\d+)$/i', $keywords, $matchs)) {
             return $this->_popo->primaryKey . '=' . $matchs[1];
         }
 
@@ -245,8 +239,6 @@ class HAction extends HObject
     /**
      * 载加模块列表到视图层 
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
      * @param  String $where 需要查找的条件，默认为空
@@ -257,7 +249,16 @@ class HAction extends HObject
         $totalRows  = $this->_model->getTotalRecords($where);
         $totalPages = ceil($totalRows / $perpage);
         $page       = $this->_getPageNumber($totalPages);
-        $list       = $this->_model->getListByWhere($where, $page, $perpage);
+        if($page > 1000) {
+            $whereId    = $this->_getListWhereId($totalRows, $where, $page * $perpage);
+            if(!$whereId) {
+                return;
+            }
+            $where      = HSqlHelper::mergeWhere(array($whereId, $where), 'AND');
+            $list       = $this->_model->getSomeRows($perpage, $where);
+        } else {
+            $list       = $this->_model->getListByWhere($where, $page, $perpage);
+        }
         $pageHtml   = $this->_genPageHtml($page + 1, $totalPages, 'page');
         HResponse::setAttribute('list', $list);
         HResponse::setAttribute('curPage', $page + 1);
@@ -268,9 +269,39 @@ class HAction extends HObject
     }
 
     /**
-     * 加载关联模块列表
+     * 得到分页列表id条件
      * 
-     * @desc
+     * 优化Limit在大的分页时出现的效率低问题
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
+     * @param $where 条件
+     * @param  $offset 偏移量
+     * @return String 
+     */
+    protected function _getListWhereId($totalRows, $where, $offset)
+    {
+        $orderBy = HPopoHelper::getOrderFields($this->_popo);
+        $cmp    = '<=';
+        foreach($orderBy as $key => $method) {
+            if(false === strpos(strtolower($method), 'asc')) {
+                $where  = HSqlHelper::mergeWhere(array('`id` >= ' . ($totalRows - $offset), $where), 'AND');
+                break;
+            }
+            $cmp    = '>=';
+            $where  = HSqlHelper::mergeWhere(array('`id` <= ' . $offset, $where), 'AND');
+            break;
+        }
+        $record  = $this->_model->getMaxLimitId('`id`', $where, $key);
+        if(!$record) {
+            return null;
+        }
+
+        return '`id` ' . $cmp . ' ' .  $record[0]['id'];
+    }
+
+    /**
+     * 加载关联模块列表
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
@@ -286,14 +317,12 @@ class HAction extends HObject
         }
         $relModel = $modelName != $this->_popo->modelEnName ?  HClass::quickloadModel($modelName) : $this->_model;
 
-        return '*' != $list ? $relModel->getAllRows(HSqlHelper::whereInByListMap($relModel->getPopo()->primaryKey, $relField, $list)) 
-            : $relModel->getAllRows();
+        return '*' != $list ? $relModel->getSomeRows(150, HSqlHelper::whereInByListMap($relModel->getPopo()->primaryKey, $relField, $list)) 
+            : $relModel->getSomeRows(150);
     }
 
     /**
      * 通过POPO配置来验证数据
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
@@ -304,6 +333,9 @@ class HAction extends HObject
         $fields     = $this->_popo->get('fields');
         foreach($fields as $field => $cfg) {
             foreach($cfg['verify'] as $type => $value) {
+                if(!$type) {
+                    continue;
+                }
                 $verifyMethod   = '_verify' . ucfirst($type);
                 $this->$verifyMethod($value, $field, $cfg['name']);
             }
@@ -312,8 +344,6 @@ class HAction extends HObject
 
     /**
      * 验证是不是不能为空
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
@@ -324,6 +354,9 @@ class HAction extends HObject
      */
     protected function _verifyNull($value, $field, $name)
     {
+        if(true === $value) {
+            return;
+        }
         if(!HVerify::isEmptyNotZero(HRequest::getParameter($field))) {
             return;
         }
@@ -337,8 +370,6 @@ class HAction extends HObject
 
     /**
      * 验证长度是否对
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
@@ -372,8 +403,6 @@ class HAction extends HObject
     /**
      * 检测当前值是否在可选项里
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
      * @param  配置值 $value
@@ -391,26 +420,34 @@ class HAction extends HObject
     /**
      * 渲染方法 
      * 
-     * @desc
-     * 
      * @access protected
      * @param string $file 模板路径
      */
     protected function _render($file)
     {
-        $file   = HResponse::getAttribute('HONGJUZI_APP')
-            . DS . HObject::GC('CUR_THEME') . DS . $file . '.tpl';
-        HResponse::setAttribute('RENDER_TPL', $file);
+        $this->_renderByPath(
+            HResponse::getAttribute('HONGJUZI_APP')
+            . DS . HObject::GC('CUR_THEME') . DS . $file
+        );
+    }
+
+    /**
+     * 渲染方法 
+     * 
+     * @access protected
+     * @param string $path 模板路径
+     */
+    protected function _renderByPath($path)
+    {
+        HResponse::setAttribute('RENDER_TPL', $path);
         HResponse::setAttribute('popo', $this->_popo);
         HClass::import('hongjuzi.html.hhtml');
 
-        require_once(HResponse::path('tpl') . DS . $file);
+        require_once(HResponse::path('tpl') . DS . $path . '.tpl');
     }
     
     /**
      * 得到当前的语言类型
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
@@ -423,8 +460,6 @@ class HAction extends HObject
 
     /**
      * 得到之前访问过的应用名称
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
@@ -439,8 +474,6 @@ class HAction extends HObject
     /**
      * 得到历史访问的模块
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
      * @param  int $deep 深度，默认为1
@@ -453,8 +486,6 @@ class HAction extends HObject
 
     /**
      * 得到历史访问的动作信息
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
@@ -469,8 +500,6 @@ class HAction extends HObject
     /**
      * 得到历史访问的链接信息
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
      * @param  int $deep 历史深度，默认为 1
@@ -483,8 +512,6 @@ class HAction extends HObject
 
     /**
      * 得到访问历史信息
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected

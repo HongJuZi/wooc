@@ -2,7 +2,7 @@
 
 /**
  * @version			$Id$
- * @create 			2013-12-20 13:12:57 By xjiujiu 
+ * @create 			2015-04-22 22:04:44 By xjiujiu 
  * @description     HongJuZi Framework
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  */
@@ -49,8 +49,8 @@ class NavmenuPopo extends HPopo
      * @var array $_fields 模块字段配置 
      */
     protected $_fields          = array('sort_num' => array(
-            'name' => '排序', 
-            'verify' => array(),
+            'name' => '排序', 'default' => '999',
+            'verify' => array('null' => false,),
             'comment' => '只能是数字，默认为：当前时间。','is_show' => true, 'is_order' => 'ASC', 
         ),'id' => array(
             'name' => 'ID', 
@@ -60,32 +60,40 @@ class NavmenuPopo extends HPopo
             'name' => '标题', 
             'verify' => array('null' => false, 'len' => 255,),
             'comment' => '长度范围：2~255。','is_show' => true, 'is_search' => true, 
-        ),'jump_url' => array(
+        ),'url' => array(
             'name' => '跳转链接', 
-            'verify' => array( 'len' => 255,),
+            'verify' => array('null' => false, 'len' => 255,),
             'comment' => '合法的URL发址','is_show' => true, 
         ),'parent_id' => array(
-            'name' => '所属分类', 'default' => '-1',
+            'name' => '所属分类', 'default' => '0',
             'verify' => array('null' => false, 'numeric' => true,),
             'comment' => '请正确选取','is_show' => true, 
+        ),'position_id' => array(
+            'name' => '位置', 'default' => '0',
+            'verify' => array('null' => false, 'numeric' => true,),
+            'comment' => '菜单显示的位置','is_show' => true, 
         ),'description' => array(
             'name' => '内容简介', 
             'verify' => array(),
-            'comment' => '长度255字以内。',
-        ),'top' => array(
-            'name' => '置顶状态', 'default' => '否',
-            'verify' => array('null' => false, 'options' => array('是','否'),),
-            'comment' => '置顶后信息将优先显示','is_show' => true, 'is_order' => 'ASC', 
-        ),'website_id' => array(
-            'name' => '所属网站', 'default' => '1',
+            'comment' => '长度255字以内。','is_show' => true,
+        ),'target' => array(
+            'name' => '打开位置', 'default' => '_self',
+            'verify' => array('null' => false, 'len' => 50,),
+            'comment' => '_self本窗口、_blank新开窗口、自定义','is_show' => true, 
+        ),'extend' => array(
+            'name' => '自定义数据', 
+            'verify' => array( 'len' => 255,),
+            'comment' => '如标识、扩展类名等','is_show' => true, 
+        ),'lang_id' => array(
+            'name' => '语言', 'default' => '454',
             'verify' => array('null' => false, 'numeric' => true,),
-            'comment' => '数据所在的网站范围','is_show' => false, 
+            'comment' => '对应语言','is_show' => true, 
         ),'create_time' => array(
             'name' => '创建时间', 
             'verify' => array('null' => false,),
             'comment' => '格式：2013-04-10',
         ),'author' => array(
-            'name' => '维护员', 'default' => '-1',
+            'name' => '维护员', 'default' => '0',
             'verify' => array('null' => false, 'numeric' => true,),
             'comment' => '所属会员',
         ),);

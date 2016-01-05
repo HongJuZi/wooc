@@ -53,23 +53,6 @@ abstract class VendorAction extends OAuthAction
     abstract public function login();
 
     /**
-     * 同步到微博 
-     * 
-     * @desc
-     * 
-     * @author xjiujiu <xjiujiu@foxmail.com>
-     * @access public
-     * @param  Array $data 需要同步的内容
-     *  --格式：
-     *  --array(
-     *      'content' => '',    //内容
-     *      'img' => ''         //图片
-     *  )
-     *  @param String JSON格式的令牌信息
-     */
-    abstract public function sync($data, $token);
-
-    /**
      * 添加用户的新浪同步信息
      * 
      * @desc
@@ -123,8 +106,6 @@ abstract class VendorAction extends OAuthAction
     /**
      * 添加用户的扩展信息
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access protected
      * @param  int $uId 用户ID
@@ -155,6 +136,23 @@ abstract class VendorAction extends OAuthAction
         if(1 > $userInfo->add($data)) {
             throw new HRequestException('用户基础数据写入失败～');
         }
+    }
+
+    /**
+     * 获取对应社交媒体分享的配置
+     * 
+     * @author licheng
+     * @access private
+     */
+    protected function _getShareSetting($identifier)
+    {
+        $setting =  HClass::quickLoadModel('sharesetting')->getRecordByWhere(
+            '`identifier` = \'' . $identifier . '\''
+        );
+        if(empty($setting)){
+            throw new HVerifyException('请先添加该分享的配置信息！');
+        }
+        return $setting;
     }
 
 }

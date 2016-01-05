@@ -2,7 +2,7 @@
 
 /**
  * @version			$Id$
- * @create 			2013-12-20 13:12:41 By xjiujiu 
+ * @create 			2016-01-04 22:01:51 By xjiujiu 
  * @description     HongJuZi Framework
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  */
@@ -33,7 +33,7 @@ class MessagePopo extends HPopo
     /**
      * @var string $_parentTable 父表名 
      */
-    protected $_parent          = 'messagetype';
+    protected $_parent          = 'category';
 
     /**
      * @var string $_table 模块表名 
@@ -53,41 +53,29 @@ class MessagePopo extends HPopo
             'verify' => array(),
             'comment' => '只能是数字','is_show' => true, 'is_order' => 'DESC', 
         ),'name' => array(
-            'name' => '标题', 
+            'name' => '称呼', 
             'verify' => array('null' => false, 'len' => 255,),
             'comment' => '长度范围：2~255。','is_show' => true, 'is_search' => true, 
-        ),'parent_id' => array(
-            'name' => '所属分类', 'default' => '1',
-            'verify' => array('null' => false, 'numeric' => true,),
-            'comment' => '请正确选取','is_show' => true, 
-        ),'visitor' => array(
-            'name' => '访客称呼', 
-            'verify' => array( 'len' => 20,),
-            'comment' => '长度范围：2~20个字符。','is_show' => true, 
-        ),'qq' => array(
-            'name' => 'QQ账号', 
-            'verify' => array( 'len' => 15,),
-            'comment' => 'QQ号','is_show' => true, 
         ),'phone' => array(
-            'name' => '联系电话', 
-            'verify' => array( 'len' => 50,),
-            'comment' => '访客电话号码','is_show' => true, 
+            'name' => '手机号码', 
+            'verify' => array( 'len' => 255,),
+            'comment' => '长度范围：2~255。','is_show' => true, 
         ),'email' => array(
-            'name' => '联系邮箱', 
-            'verify' => array( 'len' => 50,),
-            'comment' => '访客邮箱地址','is_show' => true, 
+            'name' => '邮箱', 
+            'verify' => array( 'len' => 255,),
+            'comment' => '长度范围：2~255。','is_show' => true, 
         ),'content' => array(
             'name' => '详细内容', 
-            'verify' => array(),
+            'verify' => array('null' => false,),
             'comment' => '长度10000字以内。',
-        ),'pass' => array(
-            'name' => '审查状态', 'default' => '否',
-            'verify' => array('null' => false, 'options' => array('是','否'),),
-            'comment' => '请从下拉选择','is_show' => true, 
-        ),'top' => array(
-            'name' => '置顶状态', 'default' => '否',
-            'verify' => array('null' => false, 'options' => array('是','否'),),
-            'comment' => '请从下拉选择','is_show' => true, 
+        ),'ip' => array(
+            'name' => 'IP', 
+            'verify' => array('null' => false, 'numeric' => true,),
+            'comment' => '留言都使用的IP地址','is_show' => true, 
+        ),'status' => array(
+            'name' => '状态', 'default' => '1',
+            'verify' => array('null' => false, 'numeric' => true,),
+            'comment' => '1正在处理,2删除,3解决',
         ),'create_time' => array(
             'name' => '创建时间', 
             'verify' => array('null' => false,),

@@ -46,9 +46,7 @@ class CategoryModel extends BaseModel
     }
 
     /**
-     * 得到子类信息 
-     * 
-     * @desc
+     * 得到子类信息通过指定的行 
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
@@ -56,22 +54,61 @@ class CategoryModel extends BaseModel
      * @param  boolean $andSelf 是否包括本身
      * @return Array 查找到的结果集
      */
-    public function getSubCategory($parentId, $andSelf = true)
+    public function getSubCategoryByRows($parentId, $andSelf = true, $rows)
     {
-        $where  = '`parent_path` LIKE \'%:' . $parentId . ':%\'';
-        $where  .= true == $andSelf ? '' : ' AND `id` != ' . $parentId;
+        $record     = $this->getRecordById($parentId);
        
-        return $this->_getAllRows(
-            HPopoHelper::getShowFields($this->_popo),
+        return $this->getSubCategoryByParentPath($record['parent_path'], $record['id'], $andSelf, null, $rows);
+    }
+
+    /**
+     * 得到子类信息 
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public
+     * @param  int $parentId 需要查找的上级
+     * @param  boolean $andSelf 是否包括本身
+     * @return Array 查找到的结果集
+     */
+    public function getSubCategory($parentId, $andSelf = true, $limit = null)
+    {
+        $record     = $this->getRecordById($parentId);
+
+        return $this->getSubCategoryByParentPath($record['parent_path'], $record['id'], $andSelf, null, $limit);
+    }
+
+    /**
+     *  通过父级路径得到下级分类
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public
+     * @param $path 路径
+     * @return 查找到的分类们
+     */
+    public function getSubCategoryByParentPath($path, $parentId, $andSelf, $where = null, $limit = null)
+    {
+        if(!$path) {
+            return null;
+        }
+        $where  = HSqlHelper::mergeWhere(array('`parent_path` LIKE \'' . $path . '%\'', $where), 'AND');
+        $where  .= true == $andSelf ? '' : ' AND `id` != ' . $parentId;
+        if(!$limit) {
+            return $this->getAllRowsByFields(
+                '`id`, `name`, `parent_id`, `parent_path`, `image_path`, `identifier`, `description`, `total_use`',
+                $where
+            );
+        }
+       
+        return $this->getSomeRowsByFields(
+            $limit,
+            '`id`, `name`, `parent_id`, `parent_path`, `image_path`, `identifier`, `description`, `total_use`',
             $where,
-            HPopoHelper::getOrderFields($this->_popo)
+            '`total_use` DESC'
         );
     }
 
     /**
      * 通过标识来得到所有子分类
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
@@ -79,14 +116,31 @@ class CategoryModel extends BaseModel
      * @param  Boolean $andSelf = true
      * @return Array 查找到的数据
      */
-    public function getSubCategoryByIdentifier($identifier, $andSelf = true)
+    public function getSubCategoryByIdentifier($identifier, $andSelf = true, $limit = null)
     {
         $record     = $this->getRecordByIdentifier($identifier);
-        if(empty($record)) {
-            return null;
-        }
 
-        return $this->getSubCategory($record['id'], $andSelf);
+        return $this->getSubCategoryByParentPath($record['parent_path'], $record['id'], $andSelf, null, $limit);
+    }
+    
+    /**
+     * 得到当前的总使用数约数
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public
+     * @param $where 条件
+     * @return 查找到的结果集
+     */
+    public function getTotalUse($where)
+    {
+        $this->_db->getSql()
+            ->table($this->_popo->get('table'))
+            ->fields('sum(`total_use`) as sum')
+            ->where(HSqlHelper::mergeWhere(array($this->_getMustWhere(), $where), 'AND'))
+            ->limit(1);
+        $record     = $this->_db->select()->getRecord();
+        
+        return !$record ? 0 : $record['sum'];
     }
 
 }

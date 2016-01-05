@@ -8,7 +8,7 @@
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 /**
  * 用户浏览器检测工具 
@@ -21,19 +21,6 @@ defined('HPATH_BASE') or die();
  */
 class HBrowser extends HObject
 {
-
-    /**
-     * 构造函数 
-     * 
-     * 初始化类变量 
-     * 
-     * @access public
-     * @return void
-     * @exception none
-     */
-	public function __construct()
-	{
-    }
 
     /**
      * 得到当前浏览器的名称 
@@ -50,14 +37,29 @@ class HBrowser extends HObject
     }
 
     /**
+     * 判断是否为微信浏览器
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public static
+     * @return Boolean
+     */
+    public static function isWeiXinBrowser()
+    {
+        if ( strpos($_SERVER['HTTP_USER_AGENT'], 'MicroMessenger') !== false ) {
+            return true;
+        }   
+
+        return false;
+    }
+
+    /**
      * 检测用户的类型
      * 
      * 是手机，还是PC 
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public static
-     * @return Boolean 
-     * @throws none
+     * @return 设备类型
      */
     public static function getClientType()
     {
@@ -68,46 +70,22 @@ class HBrowser extends HObject
 		//如果via信息含有wap则一定是移动设备,部分服务商会屏蔽该信息
 		if (isset ($_SERVER['HTTP_VIA'])) {
 		//找不到为flase,否则为true
-			return stristr($_SERVER['HTTP_VIA'], "wap") ? 'wap' : 'pc';
+			return stristr($_SERVER['HTTP_VIA'], 'wap') ? 'wap' : 'pc';
 		}
 		//判断手机发送的客户端标志,兼容性有待提高
 		if (isset ($_SERVER['HTTP_USER_AGENT'])) {
 			$clientkeywords = array (
-				'nokia',
-				'sony',
-				'ericsson',
-				'mot',
-				'samsung',
-				'htc',
-				'sgh',
-				'lg',
-				'sharp',
-				'sie-',
-				'philips',
-				'panasonic',
-				'alcatel',
-				'lenovo',
-				'iphone',
-				'ipod',
-				'blackberry',
-				'meizu',
-				'android',
-				'netfront',
-				'symbian',
-				'ucweb',
-				'windowsce',
-				'palm',
-				'operamini',
-				'operamobi',
-				'openwave',
-				'nexusone',
-				'cldc',
-				'midp',
-				'wap',
-				'mobile'
+				'nokia', 'sony', 'ericsson', 'mot',
+				'samsung', 'htc', 'sgh', 'lg',
+				'sharp', 'sie-', 'philips', 'panasonic',
+				'alcatel', 'lenovo', 'iphone', 'ipod',
+				'blackberry', 'meizu', 'android', 'netfront',
+				'symbian', 'ucweb', 'windowsce', 'palm',
+				'operamini', 'operamobi', 'openwave', 'nexusone',
+				'cldc', 'midp', 'wap', 'mobile'
 			);
 			// 从HTTP_USER_AGENT中查找手机浏览器的关键字
-			if (preg_match("/(" . implode('|', $clientkeywords) . ")/i", strtolower($_SERVER['HTTP_USER_AGENT']))) {
+			if (preg_match('/(' . implode('|', $clientkeywords) . ')/i', strtolower($_SERVER['HTTP_USER_AGENT']))) {
 				return 'wap';
 			}
 		}
@@ -115,12 +93,46 @@ class HBrowser extends HObject
 		if (isset ($_SERVER['HTTP_ACCEPT'])) {
 			// 如果只支持wml并且不支持html那一定是移动设备
 			// 如果支持wml和html但是wml在html之前则是移动设备
-			if ((strpos($_SERVER['HTTP_ACCEPT'], 'vnd.wap.wml') !== false) && (strpos($_SERVER['HTTP_ACCEPT'], 'text/html') === false || (strpos($_SERVER['HTTP_ACCEPT'], 'vnd.wap.wml') < strpos($_SERVER['HTTP_ACCEPT'], 'text/html')))) {
+            if ((strpos($_SERVER['HTTP_ACCEPT'], 'vnd.wap.wml') !== false) 
+                && (strpos($_SERVER['HTTP_ACCEPT'], 'text/html') === false 
+                || (strpos($_SERVER['HTTP_ACCEPT'], 'vnd.wap.wml') < strpos($_SERVER['HTTP_ACCEPT'], 'text/html')))) {
 				return 'wap';
 			}
 		}
 
 		return 'pc';        
+    }
+
+    /**
+     * 检测是否为机器人
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public static
+     * @return Boolean
+     */
+    public static function isRobot()
+    {
+        $agent      = strtolower($_SERVER['HTTP_USER_AGENT']); 
+        $spiderSite = array( 
+            'TencentTraveler', 'Baiduspider+', 'BaiduGame', 'Googlebot', 
+            'msnbot', 'Sosospider+', 'Sogou web spider', 'ia_archiver', 
+            'Yahoo! Slurp', 'YoudaoBot', 'Yahoo Slurp', 'MSNBot', 
+            'Java (Often spam bot)', 'BaiDuSpider', 'Voila', 'Yandex bot', 
+            'BSpider', 'twiceler', 'Sogou Spider', 'Speedy Spider', 
+            'Google AdSense', 'Heritrix', 'Python-urllib', 'Alexa (IA Archiver)', 
+            'Ask', 'Exabot', 'Custo', 'OutfoxBot/YodaoBot', 
+            'yacy', 'SurveyBot', 'legs', 'lwp-trivial', 
+            'Nutch', 'StackRambler', 'The web archive (IA Archiver)', 'Perl tool', 
+            'MJ12bot', 'Netcraft', 'MSIECrawler', 'WGet tools', 
+            'larbin', 'Fish search', 
+        ); 
+        foreach($spiderSite as $val) { 
+            if (strpos($agent, strtolower($val)) !== false) { 
+                return true; 
+            } 
+        } 
+
+        return false;
     }
 
 }

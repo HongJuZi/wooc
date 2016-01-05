@@ -8,7 +8,7 @@
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 //导入SQL语句造成器接口
 HClass::import('hongjuzi.scheme.IHSql');
@@ -38,19 +38,9 @@ class HSqlBase extends HObject implements IHSql
     protected $_table;
 
     /**
-     * @var string $_joinTable 关联查询的表名
-     */
-    protected $_joinTable;
-
-    /**
      * @var string | array $_fields 当前操作的字段
      */
     protected $_fields;
-
-    /**
-     * @var string | array $_joinFields 需要联合查询出来的字段
-     */
-    protected $_joinFields;
 
     /**
      * @var string $_values 对应字段的值
@@ -115,7 +105,7 @@ class HSqlBase extends HObject implements IHSql
     /**
      * @var string $_comment 表的注释
      */
-    protected $_comment;
+    protected $_comment; 
 
     /**
      * 构造函数初
@@ -130,9 +120,7 @@ class HSqlBase extends HObject implements IHSql
     {
         $this->_dbName      = '';
         $this->_table       = '';
-        $this->_joinTable   = '';
         $this->_fields      = '';
-        $this->_joinFields  = '';
         $this->_values      = '';
         $this->_join        = '';
         $this->_where       = '';
@@ -202,19 +190,16 @@ class HSqlBase extends HObject implements IHSql
     public function getSelectSql()
     {
         $this->_genSelectFieldSql();
-        $this->_genSelectJoinFieldSql();
 
         return 'SELECT ' .
                $this->_fields . ' ' .
-               $this->_joinFields . ' ' .
                'FROM ' .
                '`' . $this->_table . '` ' .
                $this->_join . ' ' .
-               $this->_where . ' ' .
+               $this->_where .
                $this->_groupBy . ' ' .
                $this->_orderBy . ' ' .
                $this->_limit . ';';
-
     }
 
     /**
@@ -233,26 +218,6 @@ class HSqlBase extends HObject implements IHSql
         } else {
             $this->_fields  = HArray::arrayToString($this->_fields,
                 $this->_table . '.`', '`,' . $this->_table . '.`','`');
-        }
-    }
-
-    /**
-     * 将当前的joinFields设置为Select语句的形式
-     * 
-     * 生成关联表里的字段显示 
-     * 
-     * @access protected
-     * @return void
-     * @exception none
-     */
-    protected function _genSelectJoinFieldSql() 
-    {
-        if(!empty($this->_joinFields)) {
-            $this->_joinFields  = HArray::arrayToString($this->_joinFields,
-                $this->_joinTable . '.`', '`, ' . $this->_joinTable . '.`','`');
-        }
-        if(!empty($this->_fields) && !empty($this->_joinFields)) {
-            $this->_joinFields  = ', ' . $this->_joinFields;
         }
     }
 
@@ -347,8 +312,15 @@ class HSqlBase extends HObject implements IHSql
         }
         $updateInfo     = '';
         foreach($this->_fields as $key => $field) {
-            $updateInfo .= null === $this->_values[$key] ? ', `' . $field . '` = NULL'
-                : ', `' . $field . '` = \'' . $this->_values[$key] . '\''; 
+            $value      = trim($this->_values[$key]);
+            if(null === $value) {
+                $updateInfo .= ', `' . $field . '` = NULL';
+                continue;
+            }
+            if(0 !== strpos($value, '`')) {
+                $value  = '\'' . $value . '\'';
+            }
+            $updateInfo .= ', `' . $field . '` = ' . $value; 
         }
         $updateInfo{0}  = ' ';
 
@@ -467,32 +439,32 @@ class HSqlBase extends HObject implements IHSql
      * 支持二维数组的多条记录批量添加 
      * 
      * @access protected
-     * @return string 
-     * @exception none
      */
     protected function _genBaseInsertValueSql()
     {
-        if(is_array($this->_values)) {
-            if(is_array($this->_values[0])) {  //看下不是二维的批量
-                foreach($this->_values as $data) {
-                    $valSql     = '';
-                    foreach($data as $val) {
-                        $valSql .= HVerify::isEmptyNotZero($val) ? ',NULL' : ',\'' . $val . '\'';
-                    }
-                    $valSql{0}  = ' ';
-                    $values     .= ',(' . $valSql . ')';
-                }
-                $values{0}      = ' ';
-                $this->_values  = $values;
-                return;
-            }
-            $valSql     = '';
-            foreach($this->_values as $val) {
-                $valSql .= HVerify::isEmptyNotZero($val) ? ',NULL' : ',\'' . $val . '\'';
-            }
-            $valSql{0}      = ' ';
-            $this->_values  = '(' . $valSql . ')';
+        if(empty($this->_values)) {
+            throw new HVerifyException('添加的数据不能为空！');
         }
+        if(!is_array($this->_values)) {
+            return $this;
+        }
+        $isMore         = false;
+        $values         = '';
+        foreach($this->_values as $data) {
+            $valSql     = '';
+            if(is_array($data)) {
+                $isMore = true;
+                foreach($data as $val) {
+                    $valSql .= HVerify::isEmptyNotZero($val) ? ',NULL' : ',\'' . $val . '\'';
+                }
+                $valSql{0}  = ' ';
+                $values .= ',(' . $valSql . ')';
+            } else {
+                $values .= HVerify::isEmptyNotZero($data) ? ',NULL' : ',\'' . $data . '\'';
+            }
+        }
+        $values{0}  = ' ';
+        $this->_values  = true === $isMore ? $values : '(' . $values . ')';
     }
 
     /**
@@ -543,34 +515,9 @@ class HSqlBase extends HObject implements IHSql
      * @return HMysql的对象 
      * @exception HSqlParseException 
      */
-    public function join($joinTable, array $where, $type = 'LEFT')
+    public function join($join)
     {
-        static $joinTypes    = array(
-            'LEFT' => 1,
-            'RIGHT' => 1,
-            'FULL' => 1,
-            'INNER' => 1
-        );
-        if(empty($joinTable)) {
-            throw new HSqlParseException('使用JOIN联合查询时，表不能为空！');
-        }
-        if(!is_array($where) || empty($where)) {
-            throw new HSqlParseException('使用JOIN联合查询时，条件不能为空！');
-        }
-        if(!array_key_exists($type, $joinTypes)) {
-            throw new HSqlParseException('Join查询的类型不正确！' . $type);
-        }
-        $this->_joinTable   = $joinTable;
-        $joinWhere          = '';
-        foreach($where as $field => $joinField) {
-            $joinWhere  .= $this->_table . '.' . $field . '=' . $joinTable . '.' . $joinField . ' AND ';
-        }
-        $joinWhere      .= '1 = 1';
-        $this->_join    = strtoupper($type) .
-                          ' JOIN ' .
-                          $joinTable .
-                          ' ON ' .
-                          $joinWhere;
+        $this->_join    = $join;
 
         return $this;
     }
@@ -587,14 +534,11 @@ class HSqlBase extends HObject implements IHSql
      */
     public function where($where = '')
     {
-        if(!empty($where)) {
-            $this->_where   = 'WHERE ';
-            if(is_array($where)) {
-                $this->_where .=  implode(' ', $where); 
-            } else {
-                $this->_where .= $where;
-            }
+        if(empty($where)) {
+            return $this;
         }
+        $this->_where   = 'WHERE ';
+        $this->_where   .= is_array($where) ? implode(' ', $where) : $where;
 
         return $this;
     }
@@ -611,7 +555,10 @@ class HSqlBase extends HObject implements IHSql
      */
     public function groupBy($groupBy = '')
     {
-        $this->_groupBy     = 'GROUP BY ';
+        if(empty($groupBy)) {
+            return $this;
+        }
+        $this->_groupBy     = ' GROUP BY ';
         if(is_array($groupBy)) {
             $this->_groupBy     .= '`' . implode('`, `', $groupBy) . '`';
         } else {
@@ -660,17 +607,33 @@ class HSqlBase extends HObject implements IHSql
      * @return void
      * @exception none
      */
-    public function limit()
+    public function limit($page, $perpage = null)
     {
-        $args           = func_get_args();
-        if(count($args) == 2) {
-            $this->_limit   = 'LIMIT ' . $args[0] * $args[1]. ', ' . $args[1];
-        } else if(count($args) == 1) {
-            $this->_limit   = 'LIMIT ' . $args[0];
+        if(null === $perpage) {
+            $this->_limit   = 'LIMIT ' . $page;
+        } else {
+            $this->_limit       = 'LIMIT ' . ($perpage * $page) . ', ' . $perpage;
         }
         
         return $this;
     }
+
+    /**
+     * 设置查询的限制条数 
+     * 
+     * 从具体哪一行数据开始查询n条数据
+     * 
+     * @access public
+     * @return void
+     * @exception none
+     */
+    public function limitRange($count,$start)
+    {
+        $this->_limit   = 'LIMIT ' . $start. ', ' . $count;
+
+        return $this;
+    }
+
 
     /**
      * 设置当前的索引字段 

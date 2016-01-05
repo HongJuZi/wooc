@@ -2,7 +2,7 @@
 
 /**
  * @version			$Id$
- * @create 			2014-01-27 15:01:05 By xjiujiu 
+ * @create 			2015-03-08 12:03:12 By xjiujiu 
  * @description     HongJuZi Framework
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  */
@@ -49,45 +49,41 @@ class CommentPopo extends HPopo
      * @var array $_fields 模块字段配置 
      */
     protected $_fields          = array('id' => array(
-            'name' => 'ID', 
+            'name' => '编号', 
             'verify' => array(),
-            'comment' => '只能是数字','is_show' => true, 'is_order' => 'DESC', 
-        ),'content' => array(
-            'name' => '详细内容', 
+            'comment' => '系统编号','is_show' => true, 'is_order' => 'DESC', 
+        ),'name' => array(
+            'name' => '维护人', 
             'verify' => array('null' => false,),
-            'comment' => '长度1000字以内。','is_show' => true, 
+            'comment' => '信息最后一次维护人','is_show' => true, 
+        ),'email' => array(
+            'name' => '邮箱', 
+            'verify' => array('null' => false, 'len' => 100,),
+            'comment' => '评论人联系邮箱','is_show' => true, 
+        ),'content' => array(
+            'name' => '评论内容', 
+            'verify' => array('null' => false, 'len' => 500,),
+            'comment' => '长度255','is_show' => true, 
         ),'item_id' => array(
-            'name' => '信息ID', 
+            'name' => '文章', 'default' => '0',
             'verify' => array('null' => false, 'numeric' => true,),
-            'comment' => '所属信息ID','is_show' => true, 
-        ),'model' => array(
-            'name' => '所属模块', 
-            'verify' => array('null' => false, 'len' => 50,),
-            'comment' => '所属模块','is_show' => true, 
-        ),'parent_id' => array(
-            'name' => '发表人', 
+            'comment' => '被评论的文章','is_show' => true, 
+        ),'status' => array(
+            'name' => '状态', 'default' => '1',
             'verify' => array('null' => false, 'numeric' => true,),
-            'comment' => '会员所属所员','is_show' => true, 
-        ),'reply_to' => array(
-            'name' => '回复给', 'default' => '0',
-            'verify' => array('null' => false, 'numeric' => true,),
-            'comment' => '被回复的用户ID','is_show' => true, 
-        ),'pass' => array(
-            'name' => '审查状态', 'default' => '是',
-            'verify' => array('null' => false, 'options' => array('是','否'),),
-            'comment' => '请从下拉选择',
-        ),'hash' => array(
-            'name' => '哈希码', 
-            'verify' => array( 'len' => 32,),
-            'comment' => '用于关联附件','is_show' => true, 
+            'comment' => '1, 正常, 2 删除','is_show' => true, 
+        ),'ip' => array(
+            'name' => 'IP', 
+            'verify' => array('null' => false, 'len' => 100,),
+            'comment' => '评论的IP地址','is_show' => true, 
         ),'create_time' => array(
             'name' => '创建时间', 
             'verify' => array('null' => false,),
-            'comment' => '格式：2013-04-10','is_show' => true, 
+            'comment' => '评论提交时间','is_show' => true, 
         ),'author' => array(
-            'name' => '维护人', 
+            'name' => '维护人', 'default' => '0',
             'verify' => array('null' => false, 'numeric' => true,),
-            'comment' => '最近一次维护人员','is_show' => true, 
+            'comment' => '信息最后一次维护人','is_show' => true, 
         ),);
 
 }

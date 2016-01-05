@@ -167,13 +167,10 @@ class UserModel extends BaseModel
      */
     public function getFindPwdHashByWhere($where)
     {
-        $this->_db->getSql()
-            ->table('#_hash')
-            ->fields('`hash`, `parent_id`, `end_time`')
-            ->where($where)
-            ->limit(1);
-
-        return $this->_db->select()->getRecord();
+       $linkeddata  = HClass::quickLoadModel('linkeddata');
+       $linkeddata->setRelItemModel('user', 'hash');
+       $rst         = $linkeddata -> getRecordByWhere($where);
+       return $rst;
     }
 
     /**
@@ -187,12 +184,16 @@ class UserModel extends BaseModel
      */
     public function addFindPwdHash($data)
     {
-        $this->_db->getSql()
-            ->table('#_hash')
-            ->fields(array_keys($data))
-            ->values(array_values($data));
-
-        return $this->_db->add();
+        $linkeddata  = HClass::quickLoadModel('linkeddata');
+        $linkeddata->setRelItemModel('user', 'hash');
+        $arr    = array(
+            'item_id'=> $data['parent_id'], 
+            'rel_id' => $data['hash'],
+            'extend' => $data['end_time'],
+            'author' => $data['parent_id']
+        );
+        $rst    = $linkeddata->add($arr);
+        return $rst;
     }
 
     /**
@@ -207,12 +208,13 @@ class UserModel extends BaseModel
      */
     public function deleteFindPwdHash($hash)
     {
-        $this->_db->getSql()
-            ->table('#_hash')
-            ->where('`hash` = \'' . $hash . '\'')
-            ->limit(1);
-
-        return $this->_db->delete();
+        $linkeddata  = HClass::quickLoadModel('linkeddata');
+        $linkeddata->setRelItemModel('user', 'hash');
+        $arr    = array(
+            'rel_id'=> $hash
+        );
+        $where  = "`rel_id` = '" . $hash . "'";
+        return $linkeddata->deleteByWhere($where);
     }
 
 }

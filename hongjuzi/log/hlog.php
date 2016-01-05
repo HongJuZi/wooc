@@ -8,7 +8,7 @@
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 /**
  * 日志类 
@@ -31,6 +31,11 @@ class HLog extends HObject
      * @var $_message 当前的日志信息
      */
     private $_message;
+ 
+    /**
+     * @var String static $L_SUCCEED 成功级别
+     */
+    public static $L_SUCCEED   = 'succeed';
 
     /**
      * @var String static $L_INFo 信息级别
@@ -63,16 +68,28 @@ class HLog extends HObject
     private $_logCfg;
 
     /**
+     * @var private static $_defLogCfg 默认配置
+     */
+    private static $_defLogCfg = array(
+        'dir' => 'runtime/log',  //存储目录
+        'size' => 2,                   //归档文件大小,单位MB
+        'method' => array(              //日志方式配置
+            //'page' => 'info, notice, error, wran',
+            'file' => 'error, wran',
+            //'email' => 'error'
+        ),
+        'tpl' =>'public/template/common/email-log.tpl'
+    );
+
+    /**
      * 构造函数
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
      */
     public function __construct()
     {
-        $this->_logCfg         = HObject::GC('LOG');
+        $this->_logCfg         = !HObject::GC('LOG') ? self::$_defLogCfg : HObject::GC('LOG');
     }
 
     /**
@@ -90,7 +107,7 @@ class HLog extends HObject
         $hlogger        = self::getInstance();
         $hlogger->exec($message, $level);
         /*如果是调试状态，直接退出整个请求*/
-        if(true === HObject::GC('DEBUG')) { exit; }
+        if(true === HObject::GC('DEBUG')) { }
     }
 
     /**
@@ -141,9 +158,27 @@ class HLog extends HObject
      */
     public function formatMessage($message, $level)
     {
+        if(is_array($message)) {
+            $message    = var_export($message, true);
+        } else if(is_object($message)) {
+            $message    = var_export($message, true);
+        }
         $level	= empty($level) ? 'UNKNOW' : $level;
+        if(IS_CLI) {
+            return sprintf("[%10s]\t%s\t[Message]\t%s\n",
+                strtoupper($level), 
+                date('Y-m-d H:m:s'), 
+                $message
+            );
+        }
 
-        return sprintf("[%10s]\t%s\t%s\n", strtoupper($level), date('Y-m-d H:m:s'), $message);
+        return sprintf("[%10s]\t[%s]\t[%s]\tURL - %s\n[Message]\t%s\n",
+            strtoupper($level), 
+            date('Y-m-d H:m:s'), 
+            HRequest::getClientIp(), 
+            HRequest::getCurUrl(),
+            $message
+        );
     }
 
     /**
@@ -152,8 +187,6 @@ class HLog extends HObject
      * 日志信息打印到页面或是控制台 
      * 
      * @access public
-     * @return void
-     * @exception none
      */
     public function page($message)
     {

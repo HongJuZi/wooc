@@ -32,6 +32,7 @@ class LinkAction extends AdminAction
      */
     public function __construct() 
     {
+        parent::__construct();
         $this->_popo        = new LinkPopo();
         $this->_model       = new LinkModel($this->_popo);
     }

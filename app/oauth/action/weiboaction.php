@@ -30,6 +30,11 @@ class WeiboAction extends VendorAction
     private static $_instance   = null;
 
     /**
+     * @var private $_identifier 同步分享标志 weibo
+     */
+    private $_identifier;
+
+    /**
      * 构造函数
      * 
      * @desc
@@ -40,15 +45,15 @@ class WeiboAction extends VendorAction
     public function __construct()
     {
         $this->_client  = null;
-        $this->_cfg     = HObject::GC('WEIBO');
+        $this->_identifier = 'weibo';
+        $this->_cfg = $this->_getShareSetting($this->_identifier);
         $this->_callbackUrl     = HResponse::url('weibo/login', '', 'oauth');
         $this->_initAuthorize();
     }
 
+    
     /**
      * 得到新浪微博同步唯一实例
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public static
@@ -74,7 +79,7 @@ class WeiboAction extends VendorAction
      */
     protected function _initAuthorize()
     {
-        $this->_sdk   = new SaeTOAuthV2($this->_cfg['key'] , $this->_cfg['secret']);
+        $this->_sdk   = new SaeTOAuthV2($this->_cfg['appid'] , $this->_cfg['key']);
     }
 
     /**
@@ -88,7 +93,7 @@ class WeiboAction extends VendorAction
     protected function _initClient($token)
     {
         $this->_client  = new SaeTClientV2(
-            $this->_cfg['key'], $this->_cfg['secret'], $token
+            $this->_cfg['appid'], $this->_cfg['key'], $token
         );
     }
 
@@ -123,24 +128,49 @@ class WeiboAction extends VendorAction
             $token      = $this->_getAccessToken($_GET['code']);
             $this->_initClient($token['access_token']);
         } catch(OAuthException $ex) {
-            throw new HVerifyException('新浪微博认证失败，请重新认证！');
+            throw new HVerifyException($ex->getMessage() . '新浪微博认证失败，请重新认证！');
         }
         $weiboUserData  = $this->_client->show_user_by_id($token['uid']);
         if(empty($weiboUserData) || $weiboUserData['error_code'] > 0) {
             throw new HVerifyException('新浪微博认证失败，请重新认证！原因：' . $weiboUserData['error']);
         }
-        //添加新的令牌
-        $token          = array(
-            'expires_in' => intval($token['expires_in']) + intval($_SERVER['REQUEST_TIME']),
-            'token' => $token['access_token']
+        $cfg        = array(
+            'key'       => $this->_cfg['appid'],
+            'secret'    => $this->_cfg['key'],
+            'token'     => $token['access_token'],
+            'expires_in'=> intval($token['expires_in']) + intval($_SERVER['REQUEST_TIME'])
         );
-        $userInfo       = $this->_addUserSync($weiboUserData['id'], 'weibo', $token, $weiboUserData);
-        $this->_addUserExtendInfo($userInfo['id'], $weiboUserData);
-        self::_setUserLoginInfo($userInfo);
-        if(!HSession::getAttribute('id', 'user')) {
-            self::_setUserRights($userInfo['parent_id']);
+        HSession::setAttribute('access_token', $token['access_token'], 'token');
+        //添加微博用户信息到表中
+        $syncsModel     = HClass::quickLoadModel('syncs');
+        $record         = $syncsModel->getRecordByWhere('`vid` = ' . $weiboUserData['id']);
+        if(empty($record)) {
+            $data       = array(
+                'vid' => $weiboUserData['id'],
+                'username' => $weiboUserData['name'],
+                'type'  => 1,
+                'expires_in' => intval($token['expires_in']) + intval($_SERVER['REQUEST_TIME']),
+                'token' => $token['access_token'],
+                'cfg'   => json_encode($cfg),
+                'author' => $weiboUserData['id'],
+            );
+            if(1 > $syncsModel->add($data)) {
+                throw new HRequestException('登录失败，请稍后再试');
+            }    
+        }else{
+            $data       = array(
+                'id' => $record['id'],
+                'username' => $weiboUserData['name'],
+                'expires_in' => intval($token['expires_in']) + intval($_SERVER['REQUEST_TIME']),
+                'token' => $token['access_token'],
+                'cfg'   => json_encode($cfg)
+            );
+            if(1 > $syncsModel->edit($data)) {
+                throw new HRequestException('登录失败，请稍后再试');
+            }
         }
-        HResponse::redirect(HResponse::url($this->_getReferenceModel(), '', $this->_getReferenceApp()));
+        
+        HResponse::redirect(HResponse::url('syncs/wbsync', '' ,'admin'));
     }
 
     /**

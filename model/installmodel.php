@@ -15,18 +15,11 @@
  * @package 		app.install.model
  * @since 			1.0.0
  */
-class InstallModel extends HObject
+class InstallModel extends HModel
 {
-
-    /**
-     * @var Object $_db 数据库连接对象
-     */
-    private $_db;
-
+    
     /**
      * 初始化数据库 
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
@@ -34,6 +27,7 @@ class InstallModel extends HObject
      */
     public function __construct($dbCfg)
     {
+        $this->_db  = null;
         $this->_initDb($dbCfg);
     }
         
@@ -44,22 +38,7 @@ class InstallModel extends HObject
      */
     public function checkDbConnection()
     {
-        return true && $this->_db;
-    }
-
-    /**
-     * 导入数据库数据 
-     * 
-     * @access public
-     * @param array 需要执行的SQL语句
-     */
-    public function importDbData($sqls)
-    {
-        foreach($sqls as $sql) {
-            if(false === $this->_db->query($sql)) {
-                throw new HRequestException('SQL执行错误！SQL：' . $sql);
-            }
-        }
+        return !!$this->_db;
     }
 
     /**
@@ -72,7 +51,7 @@ class InstallModel extends HObject
         try {
             $this->_db  = HDbFactory::getDbDriver((object)$dbCfg);
             return true;
-        } catch(HDatabaseException $ex) {
+        } catch(RequestException $ex) {
             return false;
         }
     }

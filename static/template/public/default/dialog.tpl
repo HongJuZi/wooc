@@ -12,7 +12,7 @@
         var rendorUrl   = '<?php echo HResponse::uri('rendor'); ?>/jquery/plugins';
         $(function() {
             HHJsLib.depend(rendorUrl);
-            HHJsLib.alert(<?php echo HResponse::getAttribute('msg'); ?>, function() {
+            HHJsLib.Modal.alert(<?php echo HResponse::getAttribute('msg'); ?>, function() {
                 window.history.go(-1);
             });
         }); 

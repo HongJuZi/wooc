@@ -32,6 +32,7 @@ class RightsAction extends AdminAction
      */
     public function __construct() 
     {
+        parent::__construct();
         $this->_popo        = new RightsPopo();
         $this->_model       = new RightsModel($this->_popo);
     }
@@ -50,6 +51,33 @@ class RightsAction extends AdminAction
             'parents',
             $this->_model->getAllRows('`parent_id` = -1 OR `parent_id` IS NULL')
         );
+    }
+
+    /**
+     * 加载zTree树形数据
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public
+     */
+    public function aloadztree()
+    {
+        HVerify::isAjax();
+        $id     = HRequest::getParameter('id');
+        HVerify::isRecordId($id, '权限编号');
+        $list       = $this->_model->getAllRows('`parent_id` = ' . $id);
+        if(!$list) {
+            HResponse::Json('[]');
+        }
+        $ztreeJson  = array();
+        foreach($list as $item) {
+            array_push($ztreeJson, array(
+                'id' => $item['id'],
+                'name' => $item['name'],
+                'isParent' => false,
+                'pId' => $id 
+            ));
+        }
+        HResponse::json($ztreeJson);
     }
 
 }

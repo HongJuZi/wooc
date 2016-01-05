@@ -1,4 +1,4 @@
-<div class="pre-next-record">
+<div class="pre-next-record span8">
     <?php 
         $preRecord      = HResponse::getAttribute('preRecord');
         echo empty($preRecord) ? '' : HHtml::a(
@@ -20,8 +20,8 @@
         );
     ?>
 </div>
-<p>
+<div class="span4">
     <input class="button" type="submit" value="<?php HResponse::lang('SUBMIT'); ?>" />
     <input class="button" type="reset" value="<?php HResponse::lang('RESET'); ?>" />
     <a class="button_link" href="javascript:void(0);" id="go-back-id"><?php HResponse::lang('RETURN'); ?></a>
-</p>
+</div>

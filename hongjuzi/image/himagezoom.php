@@ -6,7 +6,7 @@
  * @description     HongJuZi Framework
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 //导入图片工具父包
 HClass::import('hongjuzi.image.HImage');
@@ -24,9 +24,9 @@ class HImageZoom extends HImage
 {
 
     /**
-     * @var string $_zoomImageMask 缩放图片的类型
+     * @var string $_zoomType 缩放图片的类型
      */
-    protected $_zoomImageMask;
+    protected $_zoomType;
 
     /**
      * 构造函数 
@@ -39,7 +39,7 @@ class HImageZoom extends HImage
     {
         parent::__construct($imagePath, $savePath);
         
-        $this->_zoomImageMask   = '';
+        $this->_zoomType   = '';
     }
    
     /**
@@ -50,23 +50,84 @@ class HImageZoom extends HImage
      * @access public
      * @param int $width 图片的宽
      * @param int $height 图片的高
-     * @param string $zoomImageMask 图片缩放类型
-     * @param boolean $isScale 是否缩放
+     * @param string $type 图片缩放类型
+     * @param $isFile 是否为文件
      * @exception HIOException 文件读写异常
      */
-    public function zoom($width = 0, $height = 0, $zoomImageMask = '', $isScale = true)
+    public function zoom($width = 300, $height = 320, $type = '', $isFile = true)
     {
         //验证执行的条件
         $this->_verifyImageFile();
-        $this->_zoomImageMask   = $zoomImageMask;
-        $this->_soruce          = $this->_loadImageRes();
+        $this->_soruce  = $this->_loadImageRes();
+        $path           = $this->_getZoomImageSavePath($width, $height, $type);
         if(($width || $height)) {
             $size       = $this->_getScaleSize($width, $height);
             $zoomImage  = $this->_createNewImage($size[0], $size[1]);
-            $this->_outputImage($zoomImage, $this->_getZoomImageSavePath($width, $height));
+            $this->_outputImage($zoomImage, $path, $isFile);
             return;
         }
-        $this->_outputImage($this->_soruce, $this->_getZoomImageSavePath($width, $height));
+        $this->_outputImage($this->_soruce, $path, $isFile);
+    }
+
+    /**
+     * 留白缩放
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public
+     * @param $width = 400 指定宽度，默认为400
+     * @param $height = 300 指定高度，默认为300
+     * @param $type 缩放类型
+     * @param $isFile 是否生成文件
+     */
+    public function zoomByFillWhite($width = 400, $height = 300, $type = '', $isFile = true)
+    {
+        //验证执行的条件
+        $this->_verifyImageFile();
+        $this->_soruce          = $this->_loadImageRes();
+        $oWidth                 = $this->_imageInfo['width'];
+        $oHeight                = $this->_imageInfo['height'];
+        $oRate                  = $oWidth / $oHeight;
+        $nRate                  = $width / $height;
+        $tSize['width']         = $width;
+        $tSize['height']        = $height;
+        $position['x'] = $position['y'] = 0;
+        if($oRate > 1 && $nRate >= 1){
+            if($oRate > $nRate){
+                $tSize['height']    = ceil($tSize['width'] / $oRate);
+                $position['y']      = ceil(($height - $tSize['height']) / 2);
+            } elseif($oRate < $nRate) {
+                $tSize['width']     = ceil($oRate * $tSize['height']);
+                $position['x']      = ceil(($width - $tSize['height']) / 2);
+            }
+        } elseif($oRate > 1 && $nRate < 1) {
+            $tSize['height']        = ceil($tSize['width']/$oRate);
+            $position['y']          = ceil(($height-$tSize['height']) / 2);
+        } elseif($oRate < 1 && $nRate >=1 ) {
+            $tSize['width']         = ceil($oRate * $tSize['height']);
+            $position['x']          = ceil(($width - $tSize['width']) / 2);
+        } elseif( $oRate < 1 && $nRate < 1) {
+            if($oRate > $nRate){
+                $tSize['height']    = ceil($tSize['width'] / $oRate);
+                $position['y']      = ceil(($height - $tSize['height']) / 2);
+            }elseif($oRate < $nRate) {
+                $tSize['width']     = ceil($oRate * $tSize['height']);
+                $position['x']      = ceil(($width - $tSize['width']) / 2);
+            }
+        }
+        $path           = $this->_getZoomImageSavePath($width, $height, $type);
+        if(($width || $height)) {
+            $this->_outputImage(
+                $this->_createNewImageByFillWhite(
+                    $position, 
+                    array('width' => $width, 'height' => $height),
+                    $tSize
+                ),
+                $path,
+                $isFile
+            );
+            return;
+        }
+        $this->_outputImage($this->_soruce, $path, $isFile);
     }
 
     /**
@@ -103,11 +164,12 @@ class HImageZoom extends HImage
      * @access protected
      * @param int $width 指定的缩放宽
      * @param int $height 指定的缩放高
-     * @return string 
+     * @param $type 缩放类型
+     * @return string  生成的路径
      */
-    protected function _getZoomImageSavePath($width, $height)
+    protected function _getZoomImageSavePath($width, $height, $type = '')
     {
-        return $this->_getZoomImageSaveDir() . DS . $this->_getZoomImageName($width, $height);
+        return $this->_getZoomImageSaveDir() . DS . $this->_getZoomImageName($width, $height, $type);
     }
 
     /**
@@ -133,10 +195,10 @@ class HImageZoom extends HImage
      * @param int $height 设置的高度
      * @return  string 缩放的图片名称
      */
-    protected function _getZoomImageName($width, $height)
+    protected function _getZoomImageName($width, $height, $type = '')
     {
-        if(!empty($this->_zoomImageMask)) {
-            return $this->_getImageName() . '-' . $this->_zoomImageMask . $this->_imageInfo['ext'];
+        if($type) {
+            return $this->_getImageName() . '-' . $type . $this->_imageInfo['ext'];
         }
         if(!($width || $height)) {
             return $this->_getImageName() . '-zoom' . $this->_imageInfo['ext'];

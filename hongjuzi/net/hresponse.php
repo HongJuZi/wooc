@@ -8,7 +8,7 @@
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die('Restricted access!');
+defined('HJZ_DIR') or die('Restricted access!');
 
 /**
  * 對系統的浏覽器輸出作一個封裝
@@ -28,11 +28,6 @@ class HResponse extends HObject
     protected static $_attributes   = array();
 
     /**
-     * @var Array static $_lang  语言存储容器
-     */
-    protected static $_lang         = array();
-
-    /**
      * @var protected static $_formatMap 格式化容器
      */
     protected static $_formatMap    = array();
@@ -45,25 +40,77 @@ class HResponse extends HObject
      * @param array $record 記錄的值
      * @return mix 
      */
-    public static function formatText($field, &$record)
+    public static function formatText($field, $record)
+    {
+        if(isset(self::$_formatMap[$field])) {
+            $value  = $record[$field];
+            $item   = self::$_formatMap[$field];
+            return empty($value) || -1 == $value ? '无' : $item['data'][$value][$item['key']];
+        }
+        
+        return self::_formatToNameLink($field, $record);
+    }
+
+    /**
+     * 格式化名称
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access private static
+     * @param $field 字段
+     * @param  $record 需要处理的记录集
+     * @return String 格式化后的字符串
+     */
+    private static function _formatToNameLink($field, $record)
+    {
+        if('name' === $field) {
+            $model  = HResponse::getAttribute('HONGJUZI_MODEL');
+            return '<a href="' . HResponse::url($model . '/editview', 'id=' . $record['id']) . '">' . $record[$field] . '</a>';
+        }
+
+        return self::_formatToImgLink($field, $record);
+    }
+
+    /**
+     * 格式化图片显示内容
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access private static
+     * @param $field 字段
+     * @param  $record 处理数据
+     * @return 格式化后的内容
+     */
+    private static function _formatToImgLink($field, $record)
+    {
+        if('image_path' === $field) {
+            $value  = $record[$field];
+            $imageName  = HFile::getName($value);
+            return empty($value) ? HTranslate::__('没有图片') : '<a href="' . self::touri($value) 
+                . '" title="' . $imageName . '" class="lightbox" target="_blank"><img src="' 
+                . self::touri(HFile::getImageZoomTypePath($value, 'small')) . '" alt="' . $imageName . '"/></a>';
+        }
+
+        return self::_formatToFileLink($field, $record);
+    }
+
+    /**
+     * 格式化文件类的链接
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access private static
+     * @param $field 字段
+     * @param  $record 处理的数据
+     * @return 字符串
+     */
+    private static function _formatToFileLink($field, $record)
     {
         $value  = $record[$field];
-        if(isset(self::$_formatMap[$field])) {
-            return empty($value) || -1 == $value ? HResponse::lang('NONE', false) 
-                    : self::$_formatMap[$field]['data'][$value][self::$_formatMap[$field]['key']];
+        if('file_path' === $field) {
+            return empty($value) ? HTranslate::__('没有文件') : sprintf("<a href='%s' title='%s'/>%s</a>",
+                self::url() . $value, HFile::getBaseName($value), HFile::getBaseName($value));
         }
-        switch($field) {
-            case 'image_path':
-                $imageName  = HFile::getName($value);
-                return empty($value) ? HResponse::lang('NO_IMAGE', false) : '<a href="' . self::url() . $value . '" title="' . $imageName 
-                    . '" class="lightbox" target="_blank"><img src="' 
-                    . self::url() . HFile::getImageZoomTypePath($value, 'small') . '" alt="' . $imageName . '"/></a>';
-            case 'file_path':
-                return empty($value) ? HResponse::lang('NO_FILE', false) : sprintf("<a href='%s' title='%s'/>%s</a>",
-                    self::url() . $value, HFile::getBaseName($value), HFile::getBaseName($value));
-            default:
-            return 0 != $vaule && empty($value) ? HResponse::lang('EMPTY', false) : HString::cutString($value, 30);
-        }
+
+        return 0 != $vaule && empty($value) ? HTranslate::__('空') 
+            : str_replace("\r\n", '<br/>', HString::cutString($value, 30));
     }
 
     /**
@@ -172,7 +219,9 @@ class HResponse extends HObject
     public static function redirect($url)
     {
         $url    = empty($url) ? self::url() : $url;
-        header('Location:' . $url);
+        @header('Cache-Control: no-siteapp, no-cache, must-revalidate');
+        @header('Location: ' . $url, TRUE, 302); 
+        @header('Location: ' . $url);
         exit;
     }
     
@@ -185,7 +234,7 @@ class HResponse extends HObject
      * @param  $url 需要跳转的URL
      * @param  $time 延迟时间
      */
-    public static function succeed($message, $url = -1, $time = 1)
+    public static function succeed($message, $url = -1, $time = 2)
     {
         self::alert($message, $url, $time, 200);
     }
@@ -199,7 +248,7 @@ class HResponse extends HObject
      * @param  $url 需要跳转的URL
      * @param  $time 延迟时间
      */
-    public static function info($message, $url = -1, $time = 1)
+    public static function info($message, $url = -1, $time = 2)
     {
         self::alert($message, $url, $time, 201);
     }
@@ -213,7 +262,7 @@ class HResponse extends HObject
      * @param  $url 需要跳转的URL
      * @param  $time 延迟时间
      */
-    public static function warn($message, $url = -1, $time = 1)
+    public static function warn($message, $url = -1, $time = 2)
     {
         self::alert($message, $url, $time, 400);
     }
@@ -227,7 +276,7 @@ class HResponse extends HObject
      * @param  $url 需要跳转的URL
      * @param  $time 延迟时间
      */
-    public static function error($message, $url = -1, $time = 1)
+    public static function error($message, $url = -1, $time = 2)
     {
         self::alert($message, $url, $time, 500);
     }
@@ -246,6 +295,7 @@ class HResponse extends HObject
     {
         $url    = empty($url) ? HResponse::url() : $url;
         require_once(HResponse::path('tpl') . '/public/default/alert.tpl');
+
         exit;
     }
 
@@ -356,6 +406,23 @@ class HResponse extends HObject
     }
 
     /**
+     * 得到资源的地址
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public static
+     * @param $uri 当前资源的地址
+     * @return 格式化后的URI地址
+     */
+    public static function touri($uri)
+    {
+        if(false !== strpos($uri, '://')) {
+            return $uri;
+        }
+
+        return HResponse::url() . $uri;
+    }
+
+    /**
      * 生成請求的鏈接 
      * 
      * 用法：
@@ -372,13 +439,18 @@ class HResponse extends HObject
      */
     public static function url($model = '', $query = '', $app = '')
     {
+        if(false !== strpos($model, '://')) {
+            return $model;
+        }
         if($app || $model || $query ) {
             //自动设定当前应用
-            $app    = empty($app) ? self::$_attributes['HONGJUZI_APP'] . '/' : $app . '/'; 
-            $app    = $app == HObject::GC('DEFAULT_APP') ? '' : $app;
+            $app    = empty($app) ? self::$_attributes['HONGJUZI_APP']: $app; 
+            $app    = $app === HObject::GC('DEF_APP') ? '' : $app . '/' ;
             $query  = empty($query) ? '' : '?' . $query;
-
-            return SITE_URL . 'index.php/' . $app . $model . $query;
+            if(true == HObject::GC('OPEN_SHORT_URL')) {
+                return SITE_URL . $app . $model . $query; //短链接
+            }
+            return SITE_URL . 'index.php/' . $app . $model . $query; //长链接
         }
 
         return SITE_URL;
@@ -411,6 +483,20 @@ class HResponse extends HObject
     }
 
     /**
+     * 得到根网站的目录
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public static
+     * @return String 目录路径
+     */
+    public static function getCurThemePath($app = null)
+    {
+        $app  = null === $dir ? self::$_attributes['HONGJUZI_APP'] : $dir;
+
+        return HObject::GC('TPL_DIR') . '/' . $app  . DS . HObject::GC('CUR_THEME');
+    }
+
+    /**
      * 得到资源相对于给定基地址的完整路径 
      * 
      * @desc
@@ -424,8 +510,12 @@ class HResponse extends HObject
     protected static function _path($dir, $basePath)
     {
         switch($dir) {
+            case 'static':
+                $statics    = HObject::GC('STATIC_URL');
+                return is_array($statics) ? $statics[rand(0, count($statics) - 1)] : $statics;
             case 'cdn':
-                return HObject::GC('CDN_URL');
+                $cdns       = HObject::GC('CDN_URL');
+                return is_array($cdns) ? $cdns[rand(0, count($cdns) - 1)] : $cdns;
             case 'tpl':
             case 'template':
                 return $basePath . HObject::GC('TPL_DIR');
@@ -434,115 +524,22 @@ class HResponse extends HObject
                 return $basePath . HObject::GC('RES_DIR');
             case 'vendor':
                 return $basePath . HObject::GC('VENDOR_DIR');
-            case 'demo':
-                return $basePath . hobject::GC('TPL_DIR') . '/demo' ;
+            case 'admin':
+                return $basePath . hobject::GC('TPL_DIR') . '/admin/default/';
+            case 'public':
+                return $basePath . hobject::GC('TPL_DIR') . '/public/default/';
+            case 'def_app':
+                return $basePath . hobject::GC('TPL_DIR') . '/' . HObject::GC('DEF_APP') . DS . HObject::GC('CUR_THEME');
             default:    //全作为app处理
                 $app  = null === $dir ? self::$_attributes['HONGJUZI_APP'] : $dir;
-                return $basePath . hobject::GC('TPL_DIR') . '/' . $app  . DS . HObject::GC('CUR_THEME');
+                return $basePath . hobject::GC('TPL_DIR') . '/' . $app  . DS . HObject::GC('CUR_THEME') . '/';
         }
     }
-
-    /**
-     * @var LangMaskModel static $_langMask 语言标记操作对象
-     */
-    private static $_langMask   = null;
 
     /**
      * @var TplModel static $_tpl 模板操作数据层对象 
      */
     private static $_tpl        = null;
-
-    /**
-     * 得到当前的语言信息
-     * 
-     * @desc
-     * 
-     * @author xjiujiu <xjiujiu@foxmail.com>
-     * @access public static
-     * @param  String $mask 语言标记操作
-     */
-    public static function lang($mask, $echo = true)
-    {
-        if(isset(self::$_lang[$mask])) {
-            if(true == $echo) {
-                echo self::$_lang[$mask];
-                return;
-            }
-            return self::$_lang[$mask];
-        }
-        /*
-        self::_initLangMaskAndTplModel();
-        self::_recordTplAndRelWithLangMask(
-            self::_recordLangMask($mask)
-        );*/
-        if(true !== $echo) {
-            return $mask;
-        }
-
-        echo $mask;
-    }
-
-    /**
-     * 初始化语言标识及模板数据层操作类
-     * 
-     * @author xjiujiu <xjiujiu@foxmail.com>
-     * @access protected static
-     */
-    protected static function _initLangMaskAndTplModel()
-    {
-        if(null == self::$_langMask) {
-            self::$_langMask   = HClass::quickLoadModel('langmask');
-        }
-        if(null == self::$_tpl) {
-            self::$_tpl    = HClass::quickLoadModel('tpl');
-        }
-    }
-
-    /**
-     * 记录语言标识
-     * 
-     * @author xjiujiu <xjiujiu@foxmail.com>
-     * @access protected static
-     * @param  String $mask 当前的语言标识
-     */
-    protected static function _recordLangMask($mask)
-    {
-        $record     = self::$_langMask->getRecordByWhere('`name` = \'' . $mask . '\'');
-        if($record) {
-            return $record['id'];
-        }
-        $data       = array(
-            'name' => $mask,
-            'has_tpl' => self::_getActionFile(),
-            'author' => intval(HSession::getAttribute('id', 'user'))
-        );
-
-        return self::$_langMask->add($data);
-    }
-
-    /**
-     * 记录当前的模板及添加语言跟模板的使用
-     * 
-     * @author xjiujiu <xjiujiu@foxmail.com>
-     * @access protected static
-     * @param  String $maskId 当前标识的ID
-     */
-    protected static function _recordTplAndRelWithLangMask($maskId)
-    {
-        $actionFile     = self::_getActionFile();
-        $hash           = md5($actionFile);
-        $record         = self::$_tpl->getRecordByWhere('`hash` = \'' . $hash . '\'');
-        $data           = array(
-            'name' => $actionFile,
-            'app' => HResponse::getAttribute('HONGJUZI_APP'),
-            'hash' => $hash,
-            'author' => intval(HSession::getAttribute('id', 'user'))
-        );
-        $tplId  = empty($record) ? self::$_tpl->add($data) : $record['id'];
-        if(!self::$_tpl->getRelTplAndLangMask($tplId, $maskId)) {
-            self::$_tpl->addRelTplAndLangMask($tplId, $maskId);
-        }
-    }
 
     /**
      * 得到动作加载的文件
@@ -555,24 +552,6 @@ class HResponse extends HObject
     {
         return !empty(self::$_attributes['RENDER_TPL']) ? self::$_attributes['RENDER_TPL']
             : HResponse::getAttribute('HONGJUZI_APP') . '/' . HResponse::getAttribute('HONGJUZI_MODEL');
-    }
-
-    /**
-     * 加载语言库文件
-     * 
-     * @author xjiujiu <xjiujiu@foxmail.com>
-     * @access public static
-     * @param  String $file 当前的语言库文件
-     */
-    public static function loadLang($file)
-    {
-        $start      = false !== strrpos($file, '/') ? strrpos($file, '/') : 0;
-        $langPath   = ROOT_DIR . 'i18n/' . HSession::getAttribute('lang_type', 'website') 
-            . '/' . HResponse::getAttribute('HONGJUZI_APP') . '/' 
-            . substr($file, $start) . '.php';
-        if(file_exists($langPath)) {
-            self::$_lang     = array_merge(self::$_lang, require_once($langPath));
-        }
     }
 
 }

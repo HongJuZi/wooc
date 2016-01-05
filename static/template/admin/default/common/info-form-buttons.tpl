@@ -1,5 +1,9 @@
                                 <div class="form-actions">
-                                    <div class="pre-next-record">
+                                    <div class="span4">
+                                        <button class="btn btn-info" type="reset"><i class="icon-undo"></i>重置</button>
+                                        <button class="btn btn-success" type="submit"><i class="icon-ok"></i>提交</button>
+                                    </div>
+                                    <div class="pre-next-record span5">
                                         <?php 
                                             $preRecord      = HResponse::getAttribute('preRecord');
                                             echo empty($preRecord) ? '' : HHtml::a(
@@ -21,7 +25,5 @@
                                             );
                                         ?>
                                     </div>
-                                    <button class="btn" type="reset"><i class="icon-undo"></i>重置</button>
-                                    <button class="btn btn-info" type="submit"><i class="icon-ok"></i>提交</button>
                                 </div>
                                 <div class="hr"></div>

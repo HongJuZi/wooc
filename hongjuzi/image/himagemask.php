@@ -6,7 +6,7 @@
  * @description     HongJuZi Framework
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 //导入图片工具父包
 HClass::import('hongjuzi.image.HImage');

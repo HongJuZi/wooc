@@ -23,73 +23,175 @@ HClass::import('app.oauth.action.vendoraction');
 class QQAction extends VendorAction
 {
 
-    /**
-     * @var private static $_instance 唯一操作实例存储器
+    //初始化APIMap
+    /*
+     * 加#表示非必须，无则不传入url(url中不会出现该参数)， 'key' => 'val' 表示key如果没有定义则使用默认值val
+     * 规则 array( baseUrl, argListArr, method)
      */
-    private static $_instance   = null;
+    public static $APIMap = array(
+        /*                       qzone                    */
+        'add_blog' => array(
+            'https://graph.qq.com/blog/add_one_blog',
+            array('title', 'format' => 'json', 'content' => null),
+            'POST'
+        ),
+        'add_topic' => array(
+            'https://graph.qq.com/shuoshuo/add_topic',
+            array('richtype','richval','con','#lbs_nm','#lbs_x','#lbs_y','format' => 'json', '#third_source'),
+            'POST'
+        ),
+        'get_user_info' => array(
+            'https://graph.qq.com/user/get_user_info',
+            array('format' => 'json'),
+            'GET'
+        ),
+        'add_one_blog' => array(
+            'https://graph.qq.com/blog/add_one_blog',
+            array('title', 'content', 'format' => 'json'),
+            'GET'
+        ),
+        'add_album' => array(
+            'https://graph.qq.com/photo/add_album',
+            array('albumname', '#albumdesc', '#priv', 'format' => 'json'),
+            'POST'
+        ),
+        'upload_pic' => array(
+            'https://graph.qq.com/photo/upload_pic',
+            array('picture', '#photodesc', '#title', '#albumid', '#mobile', '#x', '#y', '#needfeed', '#successnum', '#picnum', 'format' => 'json'),
+            'POST'
+        ),
+        'list_album' => array(
+            'https://graph.qq.com/photo/list_album',
+            array('format' => 'json')
+        ),
+        'add_share' => array(
+            'https://graph.qq.com/share/add_share',
+            array('title', 'url', '#comment','#summary','#images','format' => 'json','#type','#playurl','#nswb','site','fromurl'),
+            'POST'
+        ),
+        'check_page_fans' => array(
+            'https://graph.qq.com/user/check_page_fans',
+            array('page_id' => '314416946','format' => 'json')
+        ),
+        /*                    wblog                             */
+
+        'add_t' => array(
+            'https://graph.qq.com/t/add_t',
+            array('format' => 'json', 'content','#clientip','#longitude','#compatibleflag'),
+            'POST'
+        ),
+        'add_pic_t' => array(
+            'https://graph.qq.com/t/add_pic_t',
+            array('content', 'pic', 'format' => 'json', '#clientip', '#longitude', '#latitude', '#syncflag', '#compatiblefalg'),
+            'POST'
+        ),
+        'del_t' => array(
+            'https://graph.qq.com/t/del_t',
+            array('id', 'format' => 'json'),
+            'POST'
+        ),
+        'get_repost_list' => array(
+            'https://graph.qq.com/t/get_repost_list',
+            array('flag', 'rootid', 'pageflag', 'pagetime', 'reqnum', 'twitterid', 'format' => 'json')
+        ),
+        'get_info' => array(
+            'https://graph.qq.com/user/get_info',
+            array('format' => 'json')
+        ),
+        'get_other_info' => array(
+            'https://graph.qq.com/user/get_other_info',
+            array('format' => 'json', '#name', 'fopenid')
+        ),
+        'get_fanslist' => array(
+            'https://graph.qq.com/relation/get_fanslist',
+            array('format' => 'json', 'reqnum', 'startindex', '#mode', '#install', '#sex')
+        ),
+        'get_idollist' => array(
+            'https://graph.qq.com/relation/get_idollist',
+            array('format' => 'json', 'reqnum', 'startindex', '#mode', '#install')
+        ),
+        'add_idol' => array(
+            'https://graph.qq.com/relation/add_idol',
+            array('format' => 'json', '#name-1', '#fopenids-1'),
+            'POST'
+        ),
+        'del_idol' => array(
+            'https://graph.qq.com/relation/del_idol',
+            array('format' => 'json', '#name-1', '#fopenid-1'),
+            'POST'
+        ),
+        /*                           pay                          */
+        'get_tenpay_addr' => array(
+            'https://graph.qq.com/cft_info/get_tenpay_addr',
+            array('ver' => 1,'limit' => 5,'offset' => 0,'format' => 'json')
+        )
+    );
+
+    /**
+     * @var private $_shareCfg 分享对象
+     */
+    private $_shareCfg;
+
+    /**
+     * @var private $_identifier 同步分享标志 qq
+     */
+    private $_identifier;
 
     /**
      * 构造函数
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
      */
     public function __construct()
     {
-        $this->_sdk  = null;
-        $this->_cfg  = HObject::GC('QQ');
+        $this->_sdk = null;
+        $this->_identifier = 'qq';
+        $this->_cfg = $this->_getShareSetting($this->_identifier);
+        $this->_shareCfg        = null;
         $this->_callbackUrl     = urlencode(HResponse::url('qq/login', '', 'oauth'));
     }
 
     /**
-     * 得到腾讯同步唯一实例
-     * 
-     * @desc
+     * 初始化应用配置
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
-     * @access public static
-     * @return QQAction 腾讯操作实例
+     * @access private
      */
-    public static function getInstance()
+    private function _initCfg()
     {
-        if(null === self::$_instance) {
-            self::$_instance    = new self();
+        if('oauth' != HResponse::getAttribute('HONGJUZI_APP')) {
+            HObject::loadAppCfg('oauth');
         }
-
-        return self::$_instance;
+        $this->_cfg = $this->_getShareSetting($this->_identifier);
     }
 
     /**
      * 得到认证链接
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
      * @param  String $scope 权限范围
      * @return String 得到认证URL
      */
-    public function getAuthorizeURL($scope = 'get_user_info,list_album,upload_pic,do_like')
+    public function getAuthorizeURL($scope = 'get_user_info,list_album,upload_pic,do_like,add_t,add_pic_t,get_info')
     {
-        HSession::setAttribute('state', md5(uniqid(rand(), TRUE)));
-
-        return 'https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=' . $this->_cfg['key'] . '&redirect_uri=' . $this->_callbackUrl . '&scope=' . $scope . '&state=' . HSession::getAttribute('state');
+        HSession::setAttribute('qq_state', md5(uniqid(rand(), TRUE)));
+        return 'https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=' 
+            . $this->_cfg['appid'] . '&redirect_uri=' . $this->_callbackUrl 
+            . '&scope=' . $scope . '&state=' . HSession::getAttribute('qq_state');
     }
     
     /**
      * 回调处理
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
      */
     public function login()
     {
-        if($_GET['state'] != HSession::getAttribute('state') || !isset($_GET['code']) || empty($_GET['code'])) {
-            throw new HVerifyException('请求过期，请重新绑定发起！', HResponse::url());
+        if(empty($_GET['code'])) {
+            HResponse::warn('请求过期，请重新绑定发起！', HResponse::url());
         }
         try {
             $token  = $this->_getAccessToken($_GET['code']);
@@ -102,45 +204,186 @@ class QQAction extends VendorAction
             throw new HVerifyException('获取用户数据失败，请重新认证！');
         }
         //添加新的令牌
-        $token              = array(
-            'expires_in' => intval($token['expires_in']) + intval($_SERVER['REQUEST_TIME']),
-            'token' => $token['access_token'],
-            'refresh' => $token['refresh_token'],
-            'openid' => $openId
+        $cfg        = array(
+            'openid'    => $openId,
+            'username'  => $qqUserData['nickname'],
+            'key' => $this->_cfg['appid'],
+            'secret'    => $this->_cfg['key'],
+            'token'     => $token['access_token'],
+            'server_name'=> $this->_cfg['content'],
+            'all' => $qqUserData
         );
-        $userInfo   = $this->_addUserSync(
-            md5($qqUserData['figureurl']), 'qq', $token, $qqUserData
+        $data       = array(
+            'identifier' => 'qq-share',
+            'name' => $cfg['username'],
+            'token'     => $token['access_token'],
+            'end_time' => intval($token['expires_in']) + intval($_SERVER['REQUEST_TIME']),
+            'content' => json_encode($cfg, JSON_UNESCAPED_UNICODE),
         );
-        self::_setUserLoginInfo($userInfo);
-        $this->_addUserExtendInfo($userInfo['id'], $qqUserData);
-        if(!HSession::getAttribute('id', 'user')) {
-            self::_setUserRights($userInfo['parent_id']);
+        $this->_shareCfg= HClass::quickLoadModel('shareCfg');
+        $where          = '`token` = \'' . $data['token'] . '\' AND `identifier` = \'qq-share\'';
+        $record         = $this->_shareCfg->getRecordByWhere($where); 
+        if(!$record) {
+            $this->_addTokenDataForNewUser($data);
+            return;
         }
-        HResponse::redirect(HResponse::url($this->_getReferenceModel(), '', $this->_getReferenceApp()));
+        if(!$record['parent_id']) {
+            $this->_shareCfg->delete($record['id']);
+            $this->_addTokenDataForNewUser($data);
+            return;
+        }
+        if($record) {
+            $this->_updateTokenData($data, $record);
+            return;
+        }
+    }
+
+    /**
+     * 添加新的认证数据到系统中
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access private
+     * @param $data 认证数据
+     */
+    private function _addTokenDataForNewUser($data)
+    {
+        if(HSession::getAttribute('id', 'user')) {
+            $data['parent_id']  = HSession::getAttribute('id', 'user');
+            $data['status']     = 2;
+        } else {
+            $data['parent_id']  = '0';
+            $data['status']     = 1;
+        }
+        $id     = $this->_shareCfg->add($data);
+        if(1 > $id) {
+            throw new HRequestException('添加认证信息失败！');
+        }
+        if($data['parent_id'] > 0) {
+            HResponse::succeed(
+                '信息通过验证，正在为您导航到完善个人信息页面。', 
+                HResponse::url()
+            );
+            return;
+        }
+
+        HResponse::succeed(
+            'Hi ' . $data['name'] . '，您的信息通过验证，正在为您导航到完善个人信息页面。', 
+            HResponse::url('enter/signup', 'id=' . $id, 'cms')
+        );
+    }
+
+    /**
+     * 更新当前认证信息
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access private
+     * @param $data 信息
+     * @param  $id 编号
+     * @throws HRequestException
+     */
+    private function _updateTokenData($data, $record)
+    {
+        //更新据到表中
+        if(1 > $this->_shareCfg->editByWhere($data, '`id` = ' . $record['id'])) {
+            throw new HRequestException('腾讯微博登录更新失败,请稍后再试');
+        }
+        $user       = HClass::quickLoadModel('user');
+        $userInfo   = $user->getRecordById($record['parent_id']);
+        $this->_setUserLoginInfo($userInfo);
+        $this->_setUserRights($userInfo['parent_id']);
+
+        HResponse::succeed(
+            'QQ认证成功，您可以同步分享信息到腾讯微博了！', 
+            HResponse::url()
+        );
+    }
+
+    /**
+     * 前台登陆
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public
+     */
+    public function signin()
+    {
+        if($_GET['state'] != HSession::getAttribute('qq_state') || !isset($_GET['code']) || empty($_GET['code'])) {
+            HResponse::warn('请求过期，请重新绑定发起！', HResponse::url());
+        }
+        try {
+            $token  = $this->_getAccessToken($_GET['code']);
+            $openId = $this->_getOpenId($token);
+        } catch(OAuthException $ex) {
+            throw new HVerifyException('腾讯微博认证失败，请重新认证！');
+        }
+        $qqUserData     = $this->_api('get_user_info', $token['access_token'], $openId);
+        if(!$qqUserData || 0 !== $qqUserData['ret']) {
+            throw new HVerifyException('获取用户数据失败，请重新认证！');
+        }
+        //添加新的令牌
+        $cfg        = array(
+            'openid'    => $openId,
+            'username'  => $qqUserData['nickname'],
+            'key' => $this->_cfg['appid'],
+            'secret'    => $this->_cfg['key'],
+            'token'     => $token['access_token'],
+            'server_name'=> $this->_cfg['content'],
+            'all' => $qqUserData
+        );
+        HSession::setAttribute('name', $cfg['username'], 'user');
+
+        HResponse::succeed(
+            'Hi' . $cfg['username'] . '，您已经登陆成功，正在为您导航到首页～请稍等...',
+            HResponse::url()
+        );
     }
 
     /**
      * 调用腾讯信息接口 
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access private
      * @return Array 得到的结果集
      */
-    private function _api($api, $token, $openId)
+    private function _api($api, $token, $openId, $data = array())
     {
-        $apiUrl     = 'https://graph.qq.com/user/' . $api
-            . '?access_token=' . $token .'&oauth_consumer_key='
-            . $this->_cfg['key'] . '&openid=' . $openId;
+        if(!self::$APIMap[$api]) {
+            throw new HVerifyException('当前不支持此API');
+        }
+        $cfg    = self::$APIMap[$api];
+        $params = array(
+            'access_token' => $token,
+            'oauth_consumer_key' => $this->_cfg['appid'],
+            'openid' => $openId
+        );
+        $method = isset($cfg[2]) ? $cfg[2] : 'GET';
+        foreach($cfg[1] as $key => $val) {
+            if(!is_int($key)) {
+                $params[$key]   = $val;
+                continue;
+            }
+            if(0 !== strpos($val, '#')) {
+                if(!$data[$val]) {
+                    throw new HVerifyException($val . '不能为空！');
+                }
+                $params[$val]   = $data[$val];
+                continue;
+            }
+            $val    = substr($val, 1);
+            if($data[$val]) {
+                $params[$val]   = $data[$val];
+            }
+        }
+        if('POST' === $method) {
+            $response   = HRequest::post(self::$APIMap[$api][0], $params);
+        } else {
+            $response   = HRequest::getRequest(self::$APIMap[$api][0], $params);
+        }
 
-        return json_decode(HRequest::requestUrl($apiUrl), true);
+        return json_decode($response, true);
     }
 
     /**
      * 得到进入的口令
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access private
@@ -149,8 +392,8 @@ class QQAction extends VendorAction
     private function _getAccessToken($code)
     {
         $tokenUrl = 'https://graph.qq.com/oauth2.0/token?grant_type=authorization_code&'
-            . 'client_id=' . $this->_cfg['key'] . '&redirect_uri=' . $this->_callbackUrl
-            . '&client_secret=' . $this->_cfg['secret'] . '&code=' . $code;
+            . 'client_id=' . $this->_cfg['appid'] . '&redirect_uri=' . $this->_callbackUrl
+            . '&client_secret=' . $this->_cfg['content'] . '&code=' . $code;
         $params     = array();
         parse_str(file_get_contents($tokenUrl), $params);
         if(isset($params['access_token'])) {
@@ -265,23 +508,69 @@ class QQAction extends VendorAction
      *  )
      *  @param String JSON格式的令牌信息
      */
-    public function sync($data, $token)
+    public function syncToWeibo($data, $cfg)
     {
-        try {
-            $this->_initSDK($token);
-            if(false && isset($data['img'])) {
-                $array_files	    = array();
-                $array_files['pic'] = '@' . ROOT_DIR . $data['img'];
-                $ret    = $this->_sdk->add_pic_t(array('content' => $data['content'], $array_files));
-            } else {
-                $ret    = $this->_sdk->add_t(array('content' => $data['content']));
-            }
-        } catch(Exception $ex) {
-            throw new HVerifyException('腾讯微博同步失败，请重新绑定您的微博信息!' . $ex->getMessage());
+        $this->_initCfg();
+        if(isset($data['pic']) && file_exists(ROOT_DIR . $data['pic'])) {
+            $data['pic']    = '@' . ROOT_DIR . $data['pic'];
+            $rs     = $this->_api('add_pic_t', $cfg['token'], $cfg['openid'], $data);
+        } else {
+            $rs     = $this->_api('add_t', $cfg['token'], $cfg['openid'], $data);
         }
-        if(0 !== $ret['errcode']) {
-            throw new HVerifyException('腾讯微博同步失败，原因：' . $ret['msg']);
+        if($rs['ret'] > 0) {
+            throw new HRequestException($rs['msg']);
         }
+
+        return $rs;
+    }
+
+    /**
+     * 同步到说说
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public
+     * @param $data 数据
+     * @param  $cfg 配置
+     * @return 结果
+     */
+    public function syncToTopic($data, $cfg)
+    {
+        $this->_initCfg();
+        $data['con']            = $data['content'];
+        if(isset($data['pic']) && file_exists(ROOT_DIR . $data['pic'])) {
+            $data['richtype']   = 1;
+            $size               = getimagesize(ROOT_DIR . $data['pic']);
+            $data['richval']    = HResponse::url() . $data['pic'] . '&width=' . $size[0] . '&height=' . $size[1];
+        } else {
+            $data['richtype']   = 2;
+            $data['richval']    = $data['url'];
+        }
+        $rs     = $this->_api('add_topic', $cfg['token'], $cfg['openid'], $data);
+        if($rs['ret'] > 0) {
+            throw new HRequestException($rs['msg']);
+        }
+
+        return $rs;
+    }
+
+    /**
+     * 同步到日志
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public
+     * @param $data 数据
+     * @param  $cfg 配置
+     * @return 结果
+     */
+    public function syncToBlog($data, $cfg)
+    {
+        $this->_initCfg();
+        $rs     = $this->_api('add_blog', $cfg['token'], $cfg['openid'], $data);
+        if($rs['ret'] > 0) {
+            throw new HRequestException($rs['msg']);
+        }
+
+        return $rs;
     }
 
     /**
@@ -313,12 +602,32 @@ class QQAction extends VendorAction
      */
     private function _initSDK($token)
     {
-        require_once(ROOT_DIR . 'vendor/sdk/tx/qqConnectAPI.php');
+        require_once(ROOT_DIR . 'vendor/sdk/tx/API/qqConnectAPI.php');
         try {
-            $this->_sdk     = new QC($token['token'], $token['openid'], $this->_cfg['key']);
+            $this->_sdk     = new QC($token['token'], $token['openid'], $this->_cfg['appid']);
         } catch(Exception $ex) {
             throw new HVerifyException('腾讯账号绑定过期，请重新绑定一次！');
         }
+    }
+
+    /**
+     * @var private static $_instance 实例
+     */
+    private static $_instance = null; 
+
+    /**
+     * 得到唯一实例
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public static
+     */
+    public static function getInstance()
+    {
+        if(null === self::$_instance) {
+            self::$_instance    = new self();
+        }
+
+        return self::$_instance;
     }
 
 }

@@ -6,7 +6,7 @@
  * @description HongJuZi Framework
  * @copyRight Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 /**
  * Popo模块配置对象的助手类 

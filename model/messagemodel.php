@@ -2,7 +2,7 @@
 
 /**
  * @version			$Id$
- * @create 			2013-08-05 13:08:19 By xjiujiu
+ * @create 			2014-06-09 22:06:49 By xjiujiu
  * @description     HongJuZi Framework
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  */

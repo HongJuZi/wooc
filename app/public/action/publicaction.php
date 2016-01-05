@@ -8,46 +8,16 @@
  */
 defined('_HEXEC') or die('Restricted access!');
 
+HClass::import('app.base.action.baseaction');
+
 /**
  * 公用控制父类
- *
- * @desc
  *
  * @author xjiujiu <xjiujiu@foxmail.com>
  * @package app.public.action
  * @since 1.0.0
  */
-class PublicAction extends HAction
+class PublicAction extends BaseAction
 {
-
-    /**
-     * 主页入口
-     * 
-     * @desc
-     * 
-     * @author xjiujiu <xjiujiu@foxmail.com>
-     * @access public
-     */
-    public function index()
-    {
-        HResponse::redirect(HResponse::url());
-    }
-
-    /**
-     * 赋值网站的配置信息 
-     * 
-     * @desc
-     * 
-     * @access protected
-     */
-    protected function _assignSiteConfig()
-    {
-        $config     = HClass::quickLoadModel('config');
-        HResponse::setAttribute(
-            'siteCfg', 
-            $config->getRecordByWhere('`lang_type` = \'' . $this->_getCurLang() . '\'')
-        );
-    }
-    
 
 }

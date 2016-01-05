@@ -6,7 +6,7 @@
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 //导入数组工具类
 HClass::import('hongjuzi.database.IHDatabase');
@@ -83,10 +83,9 @@ class HMysqlBase extends HObject implements IHDatabase
      * 释放无用的变量内存空间 
      * 
      * @access public
-     * @return void
-     * @exception none
      */
-    public function __destruct() {
+    public function __destruct() 
+    {
         unset($this->_result);
     }
 
@@ -96,7 +95,6 @@ class HMysqlBase extends HObject implements IHDatabase
      * 连接Mysql数据库 
      * 
      * @access public
-     * @return void
      * @exception HDatabaseConnectionException 
      */
     public function connect() { }
@@ -107,8 +105,6 @@ class HMysqlBase extends HObject implements IHDatabase
      * 通过读取配置文件里的编码配置项，要是没有找到就给以utf-8，作为默认 
      * 
      * @access public
-     * @return void
-     * @exception none
      */
     public function charset()
     {
@@ -121,12 +117,8 @@ class HMysqlBase extends HObject implements IHDatabase
     /**
      * 创建数据库 
      * 
-     * @desc
-     * 
      * @access public
      * @param string $sql 需要执行的SQL语句，默认为：''
-     * @return boolean 
-     * @throws none
      */
     public function createDb($sql = '')
     {
@@ -138,12 +130,9 @@ class HMysqlBase extends HObject implements IHDatabase
     /**
      * 删除数据库 
      * 
-     * @desc
-     * 
      * @access public
      * @param string $sql 执行需要删除的数据库， 默认为: ''
      * @return boolean 
-     * @throws none
      */
     public function dropDb($sql = '')
     {
@@ -160,7 +149,6 @@ class HMysqlBase extends HObject implements IHDatabase
      * @access public
      * @param string $sql 需要执行的SQL操作, 默认为空
      * @return boolean 
-     * @exception none
      */
     public function createTable($sql = '')
     {

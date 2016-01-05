@@ -2,7 +2,7 @@
 
 /**
  * @version			$Id$
- * @create 			2014-03-22 13:03:27 By xjiujiu 
+ * @create 			2015-12-13 22:12:26 By xjiujiu 
  * @description     HongJuZi Framework
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  */
@@ -46,13 +46,19 @@ class UserPopo extends HPopo
     public $primaryKey          = 'id';
 
     /**
+     * Sex Map
+     * @var array
+     */
+    public static $_sexMap      = array(
+        '1' => array('id' => '1', 'name' => '男'),
+        '2' => array('id' => '2', 'name' => '女'),
+        '3' => array('id' => '3', 'name' => '保密')
+    );
+
+    /**
      * @var array $_fields 模块字段配置 
      */
-    protected $_fields          = array('sort_num' => array(
-            'name' => '排序', 
-            'verify' => array( 'numeric' => true,),
-            'comment' => '只能是数字，默认为：当前时间。','is_show' => true, 'is_order' => 'ASC', 
-        ),'id' => array(
+    protected $_fields          = array('id' => array(
             'name' => 'ID', 
             'verify' => array(),
             'comment' => '系统编号','is_show' => true, 
@@ -60,6 +66,10 @@ class UserPopo extends HPopo
             'name' => '用户名', 
             'verify' => array('null' => false, 'len' => 50,),
             'comment' => '登录系统使用的账号','is_show' => true, 
+        ),'true_name' => array(
+            'name' => '真实姓名', 
+            'verify' => array( 'len' => 20,),
+            'comment' => '用户真实姓名','is_show' => true, 
         ),'password' => array(
             'name' => '密码', 
             'verify' => array( 'len' => 32,),
@@ -68,13 +78,9 @@ class UserPopo extends HPopo
             'name' => '性别', 'default' => '1',
             'verify' => array('null' => false, 'numeric' => true,),
             'comment' => '用户性别：1，男；2，女；3. 其它。','is_show' => true, 
-        ),'age' => array(
-            'name' => '年龄', 'default' => '0',
-            'verify' => array('null' => false, 'len' => 20,),
-            'comment' => '用户真实年龄','is_show' => false, 
         ),'birthday' => array(
             'name' => '出生日期', 
-            'verify' => array('null' => false,),
+            'verify' => array(),
             'comment' => '格式：YYYY-MM-DD','is_show' => false, 
         ),'parent_id' => array(
             'name' => '所属角色', 'default' => '1',
@@ -98,17 +104,21 @@ class UserPopo extends HPopo
             'comment' => '常用邮箱地址','is_show' => true, 
         ),'phone' => array(
             'name' => '电话号码', 
-            'verify' => array( 'len' => 30,),
+            'verify' => array( 'len' => 255,),
             'comment' => '常用电话号码，方便联系','is_show' => false, 
+        ),'is_subscribe' => array(
+            'name' => '关注', 'default' => '2',
+            'verify' => array('null' => false, 'numeric' => true,),
+            'comment' => '1否,2是','is_show' => true, 
         ),'hash' => array(
             'name' => '哈希', 
             'verify' => array( 'len' => 60,),
             'comment' => '记录用户的登陆状态',
-        ),'pass' => array(
-            'name' => '审核状态', 'default' => '是',
-            'verify' => array('null' => false, 'options' => array('是','否'),),
-            'comment' => '通过的信息才能被用户看到',
-        ),'edit_time' => array(
+        ),'u_from' => array(
+            'name' => '来源', 
+            'verify' => array( 'len' => 20,),
+            'comment' => '用户来源','is_show' => true, 
+        ),'login_time' => array(
             'name' => '编辑时间', 
             'verify' => array('null' => false, 'numeric' => true,),
             'comment' => '最近一次修改时间',

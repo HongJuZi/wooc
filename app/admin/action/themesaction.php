@@ -34,6 +34,7 @@ class ThemesAction extends AdminBaseAction
      */
     public function index()
     {
+        parent::__construct();
         $this->_assignThemes();
         $this->_render('hongjuzi/themes');
     }

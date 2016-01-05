@@ -11,8 +11,6 @@ defined('_HEXEC') or die('Restricted access!');
 /**
  * 错误控制类
  *
- * @desc
- *
  * @author xjiujiu <xjiujiu@foxmail.com>
  * @package app.public.action
  * @since 1.0.0
@@ -23,14 +21,23 @@ class ErrorAction extends HAction
     /**
      * 没有找到对应的文件或网址不存在
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
      */
     public function notfound()
     {
         $this->_render('404');
+    }
+
+    /**
+     * 正在维护
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public
+     */
+    public function fixing()
+    {
+        $this->_render('fixing');
     }
 
 }

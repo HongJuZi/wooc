@@ -2,7 +2,7 @@
 
 /**
  * @version			$Id$
- * @create 			2013-11-07 01:11:02 By xjiujiu
+ * @create 			2014-04-10 22:04:15 By xjiujiu
  * @description     HongJuZi Framework
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  */
@@ -32,6 +32,7 @@ class CommentAction extends AdminAction
      */
     public function __construct() 
     {
+        parent::__construct();
         $this->_popo        = new CommentPopo();
         $this->_model       = new CommentModel($this->_popo);
     }

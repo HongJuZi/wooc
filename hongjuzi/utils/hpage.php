@@ -8,7 +8,7 @@
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die('Restricted access!');
+defined('HJZ_DIR') or die('Restricted access!');
 
 /**
  * 分页工具类 
@@ -100,11 +100,8 @@ class HPage extends HObject
     /**
      * 得到分页的HTML代码 
      * 
-     * @desc
-     * 
      * @access public
      * @return string 
-     * @exception none
      */
     public function getPageHtml()
     {
@@ -169,38 +166,33 @@ class HPage extends HObject
     /**
      * 得到页面链接，正常还是当前页面 
      * 
-     * @desc
-     * 
      * @access protected
      * @param int $page 页码值
      * @return string 
-     * @exception none
      */
     protected function _getPageHtml($page)
     {
         if($this->_curPage == $page) {
             return $this->_getCurPageHtml($page);
         }
+
         return $this->_getNormalPageHtml($page);
     }
 
     /**
      * 得到分页HTML代码的Header部分 
      * 
-     * @desc
-     * 
      * @access protected
      * @return void
-     * @exception none
      */
     protected function _getPageHeaderHtml()
     {
 		$header		= strtr(
 			$this->_pageStyleHtml[$this->_style]['header'],
 			array(
-				'{TOTAL_RECORDS}' => HResponse::lang('TOTAL_RECORDS', false),
-				'{CUR_LOCATION}' => HResponse::lang('CUR_LOCATION', false),
-				'{PAGE}' => HResponse::lang('PAGE', false)
+				'{TOTAL_RECORDS}' => HTranslate::__('总记录'),
+				'{CUR_LOCATION}' => HTranslate::__('当前页'),
+				'{PAGE}' => HTranslate::__('页') 
 			)
 		);
 
@@ -258,7 +250,7 @@ class HPage extends HObject
 		$first	= strtr(
 			self::$_pageStyleHtml[$this->_style]['first'],
 			array(
-				'{PRE_PAGE}' => HResponse::lang('PRE_PAGE', false)
+				'{PRE_PAGE}' => HTranslate::__('上一页')
 			)
 		);
         if($this->_curPage == 1) {
@@ -279,8 +271,6 @@ class HPage extends HObject
     /**
      * 得到下一页的HTML代码 
      * 
-     * @desc
-     * 
      * @access protected
      */
     protected function _getNextHtml()
@@ -288,7 +278,7 @@ class HPage extends HObject
 		$last	= strtr(
 			self::$_pageStyleHtml[$this->_style]['last'],
 			array(
-				'{NEXT_PAGE}' => HResponse::lang('NEXT_PAGE', false)
+				'{NEXT_PAGE}' => HTranslate::__('下一页')
 			)
 		);
         if($this->_totalPages == 0 || $this->_curPage == $this->_totalPages) {
@@ -316,9 +306,8 @@ class HPage extends HObject
      */
     protected function _genPageLink($page)
     {
-        static $uri = '';
         $regMode    = '/&?' . $this->_paramName . '=\d+/i';
-        $uri        = empty($uri) ? preg_replace($regMode, '', HRequest::getUri()) : $uri;
+        $uri        = preg_replace($regMode, '', HRequest::getCurUrl());
         if(false !== ($loc = strpos($uri, '?'))) {
             if($loc != strlen($uri)) {
                 return str_replace('?&', '?', $uri . '&' . $this->_paramName . '=' . $page);

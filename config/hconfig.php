@@ -1,88 +1,64 @@
-<?php
-
-/**
- * @version			$Id$
- * @create 			2012-04-21 11:04:10 By xjiujiu
- * @description     HongJuZi Framework
- * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
- */
-defined('_HEXEC') or die('Restricted access!');
-
-return array (
-  'DEFAULT_APP' => 'cms',
+<?php return array (
+  'DEF_APP' => 'cms',
+  'OPEN_SHORT_URL' => false,
+    //数据库配置
   'DATABASE' => 
   array (
     'tablePrefix' => 'hjz_',
-    //'dbHost' => '172.28.138.234',
-    'dbHost' => 'localhost',
+    'dbHost' => '172.28.138.70',
     'dbPort' => '3306',
-    'dbType' => 'Mysql',
+    'dbType' => 'mysql',
     'dbDriver' => 'mysqli',
     'dbCharset' => 'utf8',
-    'dbName' => 'hjz_cms',
+    'dbName' => 'hjz_wooc_demo',
     'dbUserName' => 'xyrj_remote',
-    'dbUserPassword' => 'xyrj123456'
-  ),
+    'dbUserPassword' => 'xyrj123456',
+),
+//邮件配置
   'MAIL' => 
   array (
     'charset' => 'UTF-8',
-    'mailMethod' => 'gmail',
-    'mailHost' => 'smtp.gmail.com',
-    'mailPort' => '465',
-    'mailUserName' => 'xjiujiukf@gmail.com',
-    'mailUserPasswd' => 'xjiujiu89',
-    'mailFromEmail' => 'admin@hongjuzi.com',
-    'mailFromName' => '九九',
-    'mailReplyEmail' => 'xjiujiu@foxmail.com',
-    'mailReplyName' => '九九'
+    'mailMethod' => 'smtp',
+    'mailHost' => 'smtp.163.com',
+    'mailPort' => '25',
+    'mailUserName' => 'smengxiaomeng@163.com',
+    'mailUserPasswd' => 'xiaomengku',
+    'mailFromEmail' => 'smengxiaomeng@163.com',
+    'mailFromName' => '红橘子客服邮箱',
+    'mailReplyEmail' => 'smengxiaomeng@163.com',
+    'mailReplyName' => 'smengxiaomeng@163.com'
+),
+  'WECHAT' => array(
+      'name' => '',
+      'appid' => '',
+      'secret' => ''
   ),
-  //'CDN_URL' => 'http://cdn.hongjuzi.net',
-  'CDN_URL' => 'http://localhost/hjz-cms/vendor',
-  'ADMIN_EMAIL' => 'xjiujiu@foxmail.com',
-  'COOKIE_ENCODE' => 'xyrj',
+  //静态资源访问链接
+  'STATIC_URL' => 'http://localhost/hjz-wooc-demo/',
+  //加速资源访问链接
+  'CDN_URL' => 'http://localhost/hjz-wooc-demo/vendor/',
+  'CUR_THEME' => 'ace',
+  'COOKIE_ENCODE' => 'SDFL@@#@SDF',
   'TIME_ZONE' => 'Asia/Shanghai',
   'PAGE_STYLE' => 'bootstrap',
-  'CUR_THEME' => 'default',
   'URL_MODE' => 'pathinfo',
   'VENDOR_DIR' => 'vendor',
   'RUNTIME_DIR' => 'runtime',
+  'CONFIG_TPL' => 'config/config.tpl',
   'TPL_DIR' => 'static/template',
-  'RES_DIR' => 'static/uploadfiles',
-  'FONTS' => 
+  'RES_DIR' => 'static/uploadfiles/sites/localhost/',
+  'LOG' => 
   array (
-    'monaco' => 
+    'dir' => 'runtime/log',
+    'size' => 50,
+    'method' => 
     array (
-      'path' => '/resource/fonts/monaco.ttf',
-      'space' => 4,
+      'file' => 'error, wran',
     ),
-    'fangzhenzhongqian' => 
-    array (
-      'path' => '/resource/fonts/fangzhenzhongqian.ttf',
-      'space' => 1,
-    ),
+    'tpl' => 'public/template/common/email-log.tpl',
   ),
-  'MASK_ITEM' => 
-  array (
-    'font' => 'fangzhenzhongqian',
-    'size' => 16,
-  ),
-'LOG' => array(
-    'dir' => 'runtime/log',  //存储目录
-    'size' => 50,                   //归档文件大小,单位MB
-    'method' => array(              //日志方式配置
-        //'page' => 'info, notice, error, wran',
-        'file' => 'error, wran',
-        //'email' => 'error'
-    ),
-    'tpl' =>'public/template/common/email-log.tpl',
-),
   'RSS_TTL' => '120',
-  'PROTACL_MASK' => '|',
-  'SYS_NAME' => '红橘子',
+  'SYS_NAME' => 'Wooc-红橘子科技',
   'SYS_VERSION' => '1.0.0',
-  'STATIC_VERSION' => '20131213',
-  'INSTALL' => 2,
-  'DEBUG' => false
-);
-
-?>
+  'DEBUG' => false,
+); ?>

@@ -59,9 +59,13 @@ HHJsLib.register({
                     {email: $("#in-email").val(), password: $("#password").val(), vcode: $("#vcode").val()},
                     function(response) {
                         if(false === response.rs) {
+                            $("#vcode-img").click();
                             return HHJsLib.notice(response.message);
                         }
-                        window.location.href    = siteUrl + "index.php/admin";
+                        HHJsLib.succeed('登陆成功，正在跳转中...');
+                        setTimeout(function() {
+                            window.location.href    = siteUrl + "index.php/admin";
+                        }, 2000);
                     },
                     "json"
                 );

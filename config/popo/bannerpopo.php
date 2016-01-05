@@ -2,7 +2,7 @@
 
 /**
  * @version			$Id$
- * @create 			2014-03-22 19:03:44 By xjiujiu 
+ * @create 			2015-07-12 12:07:50 By xjiujiu 
  * @description     HongJuZi Framework
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  */
@@ -71,7 +71,7 @@ class BannerPopo extends HPopo
         ),'image_path' => array(
             'name' => '图片', 
             'verify' => array( 'len' => 255,),
-            'comment' => '请选择允许的类型。','is_show' => true, 'is_file' => true, 'zoom' => array('small' => array(100, 120)), 'type' => array('.png', '.jpg', '.gif'), 'size' => 0.5
+            'comment' => '请选择允许的类型。','is_show' => true, 'is_file' => true, 'zoom' => array('small' => array(300, 320)), 'type' => array('.png', '.jpg', '.gif'), 'size' => 0.5
         ),'website_id' => array(
             'name' => '所属网站', 'default' => '1',
             'verify' => array('null' => false, 'numeric' => true,),

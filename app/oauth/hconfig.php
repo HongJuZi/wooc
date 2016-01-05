@@ -10,13 +10,13 @@ defined('_HEXEC') or die('Restricted access!');
 
 return array (
     'WEIBO' => array(
-        'key' => '2131994639',
-        'secret' => 'd5cbaf5715bad18a9f4884338b5ffc1e'
+        'key' => '', //appid
+        'secret' => '' //key
     ),
     'QQ' => array(
-        'key' => '100571806',
-        'secret' => '49587c89cab493acfbd5ab550837632c',
-        'server_name' => 'openapi.tencentyun.com'//'119.147.19.43'
+        'key' => '',
+        'secret' => '',
+        'server_name' => ''//'119.147.19.43'
     ),
     'PAGE_STYLE' => 'bootstrap',  //分页风格
     'CUR_LANG' => 'zh-cn',        //当前使用的语言

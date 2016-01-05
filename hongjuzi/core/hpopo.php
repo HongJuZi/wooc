@@ -8,7 +8,7 @@
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 /**
  * 网站模块的Popo基类
@@ -54,8 +54,6 @@ class HPopo extends HObject
     /**
      * 得到当前字段验证配置
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
      * @param  String $field 当前需要查找的字段
@@ -68,8 +66,6 @@ class HPopo extends HObject
 
     /**
      * 得到字段的页面名称
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
@@ -84,8 +80,6 @@ class HPopo extends HObject
     /**
      * 得到字段的提示信息
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
      * @param  String $field 字段名称 
@@ -98,8 +92,6 @@ class HPopo extends HObject
 
     /**
      * 得到字段的属性 
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
@@ -119,8 +111,6 @@ class HPopo extends HObject
     /**
      * 设置配置属性
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
      * @param  String $field 需要操作的字段
@@ -129,15 +119,13 @@ class HPopo extends HObject
      */
     public function setFieldAttribute($field, $attr, $value)
     {
-        if(isset($this->_fields[$field])) {
-            $this->_fields[$field][$attr]   = $value;
-        }
+        $this->_fields[$field][$attr]   = $value;
+
+        return $this;
     }
 
     /**
      * 设置模块配置文件的字段配置信息
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
@@ -146,15 +134,13 @@ class HPopo extends HObject
      */
     public function setFieldCfg($field, $cfg)
     {
-        if(isset($this->_fields[$field])) {
-            $this->_fields[$field]  = $cfg;
-        }
+        $this->_fields[$field]  = $cfg;
+
+        return $this;
     }
 
     /**
      * 检测是否含有当前字段
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public

@@ -28,7 +28,6 @@
                                       </div>
                                     </div>
                                   </div>
-                                <?php require_once(HResponse::path('admin') . '/common/info-form-buttons.tpl'); ?>
                              </form>
                         <!-- PAGE CONTENT ENDS HERE -->
 						 </div><!--/row-->

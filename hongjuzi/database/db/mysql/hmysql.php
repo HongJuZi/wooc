@@ -6,7 +6,7 @@
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 //定义Mysql的查询结果类型
 define('ASSOC', MYSQL_ASSOC);
@@ -99,6 +99,12 @@ class HMysql extends HMysqlBase
         return self::$_db;
     } 
 
+    /**
+     * 初始化数据库
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
+     */
     protected function _initDb()
     {
         try {
@@ -107,8 +113,8 @@ class HMysql extends HMysqlBase
             //选择需要操作的数据库
             $this->selectDb();
             return true;
-        } catch(HDatabaseException $ex) {
-            HLogger::log($ex->getMessage(), WARN);
+        } catch(HRequestException $ex) {
+            HLog::write($ex->getMessage(), HLog::$L_WARN);
             return false; 
         }
     }
@@ -119,7 +125,6 @@ class HMysql extends HMysqlBase
      * 连接Mysql数据库 
      * 
      * @access public
-     * @return void
      * @exception HDatabaseConnectionException 
      */
     protected function _connect()
@@ -130,7 +135,7 @@ class HMysql extends HMysqlBase
             $this->_hConfigs->dbUserPassword
         );
         if(false === $this->_link) {
-            throw new HDatabaseException('数据库连接失败！');
+            throw new HRequestException('数据库连接失败！');
         }
         
     }
@@ -141,7 +146,7 @@ class HMysql extends HMysqlBase
     public function selectDb()
     {
         if(false == mysql_select_db($this->_hConfigs->dbName)) {
-            throw new HDatabaseException('找不到对应的数据库!' . $this->_hConfigs->dbName);
+            throw new HVerifyException('找不到对应的数据库!' . $this->_hConfigs->dbName . '如果没有创建，请先创建。');
         }
 
         return true;
@@ -153,8 +158,6 @@ class HMysql extends HMysqlBase
      * 信息由host跟端口的组合 
      * 
      * @access protected
-     * @return void
-     * @exception none
      */
     protected function _getServerInfo()
     {
@@ -174,7 +177,7 @@ class HMysql extends HMysqlBase
 
         } catch(HSqlParseException $ex) {
             HLogger::log($ex->getMessage(), WARN);
-        } catch(HDatabaseException $ex) {
+        } catch(HRequestException $ex) {
             HLogger::log($ex->getMessage(), WARN);
         }
         
@@ -184,11 +187,8 @@ class HMysql extends HMysqlBase
     /**
      * 得到查询的数组 
      * 
-     * @desc
-     * 
      * @access protected
      * @return array 记录数组
-     * @exception none
      */
     protected function _getFetch($fetchMode = '')
     {
@@ -213,15 +213,14 @@ class HMysql extends HMysqlBase
      *
      * @param string $sql 需要执行的Sql语句
      * @access protected
-     * @return void
-     * @exception HDatabaseException 
+     * @exception HRequestException 
      */
     protected function _getResult($sql)
     {
         $this->_result  = $this->_query($sql);
         if(!is_resource($this->_result)) {
             HLogger::log($this->_getDbError(), WARN);
-            throw new HDatabaseException('SQL执行错误！' . $sql);
+            throw new HRequestException('SQL执行错误！' . $sql);
         }
     }
 
@@ -232,7 +231,6 @@ class HMysql extends HMysqlBase
      * 
      * @access protected
      * @return boolean 
-     * @exception none
      */
     protected function _freeResult()
     {
@@ -256,11 +254,8 @@ class HMysql extends HMysqlBase
     /**
      * 得到最后插入的记录的Id值
      * 
-     * @desc
-     * 
      * @access protected
-     * @return void
-     * @exception none
+     * @return int
      */
     protected function _getLastInsertId()
     {
@@ -338,11 +333,8 @@ class HMysql extends HMysqlBase
     /**
      * 得到上一次执行sql语句所影响的记录行数 
      * 
-     * @desc
-     * 
      * @access protected
-     * @return void
-     * @exception none
+     * @return int
      */
     public function getAffectedRows()
     {
@@ -356,7 +348,6 @@ class HMysql extends HMysqlBase
      * 
      * @access public
      * @return IHSql 对象 
-     * @exception none
      */
     public function getSql()
     {
@@ -373,7 +364,6 @@ class HMysql extends HMysqlBase
      * @access protected
      * @param string $sql
      * @return string
-     * @exception none
      */
     protected function _escapeSql($sql)
     {
@@ -386,15 +376,11 @@ class HMysql extends HMysqlBase
      * 返回当前数据库执行出错的信息内容 
      * 
      * @access protected
-     * @return void
-     * @exception none
      */
     protected function _getDbError()
     {
-        return 'Error code: ' .
-               @mysql_errno($this->_link) .
-                ' Error Message: ' . 
-               @mysql_error($this->_link);
+        return 'Error code: ' . @mysql_errno($this->_link) 
+            . ' Error Message: ' .  @mysql_error($this->_link);
     }
 
     /**

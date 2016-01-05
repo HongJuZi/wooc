@@ -2,17 +2,17 @@
 
 /**
  * @version			$Id$
- * @create 			2012-4-8 17:52:14 By xjiujiu
+ * @create 			2015-04-19 17:04:38 By xjiujiu
  * @description     HongJuZi Framework
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  */
 defined('_HEXEC') or die('Restricted access!');
 
-//导入模块相关类
-HClass::import('config.popo.ModelManagerPopo, app.admin.action.AdminAction, model.ModelManagerModel');
+//导入引用文件
+HClass::import('config.popo.modelmanagerpopo, app.admin.action.AdminAction, model.modelmanagermodel');
 
 /**
- * 生成工具的动作类 
+ * 模块管理的动作类 
  * 
  * 主要处理后台管理主页的相关请求动作 
  * 
@@ -20,7 +20,7 @@ HClass::import('config.popo.ModelManagerPopo, app.admin.action.AdminAction, mode
  * @package 		app.admin.action
  * @since 			1.0.0
  */
-class ModelManagerAction extends AdminAction
+class ModelmanagerAction extends AdminAction
 {
 
     /**
@@ -32,92 +32,88 @@ class ModelManagerAction extends AdminAction
      */
     public function __construct() 
     {
-        $this->_popo        = new ModelManagerPopo();
-        $this->_model       = new ModelManagerModel($this->_popo);
+        parent::__construct();
+        $this->_popo        = new ModelmanagerPopo();
+        $this->_model       = new ModelmanagerModel($this->_popo);
     }
 
     /**
-     * 快捷操作面板 
+     * 列表后驱
      * 
-     * @access public
-     */
-    public function control()
-    {
-        $this->_render('modelmanager/control_view');
-    }
-
-    /**
-     * 添加动作
+     * {@inheritdoc}
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
-     * @access public
      */
-    public function addview()
+    protected function _otherJobsAfterList()
     {
-        HResponse::succeed('此功能只对VIP开放，如何成为VIP？请联系：xjiujiu@foxmail.com~');
-    }
-
-    /**
-     * 添加动作
-     * 
-     * @author xjiujiu <xjiujiu@foxmail.com>
-     * @access public
-     */
-    public function add()
-    {
-        HResponse::succeed('此功能只对VIP开放，如何成为VIP？请联系：xjiujiu@foxmail.com~');
-    }
-
-    /**
-     * 删除动作 
-     * 
-     * @access public
-     */
-    public function delete()
-    {
-        $recordIds  = HRequest::getParameter('id');
-        if(!is_array($recordIds)) {
-            $recordIds  = array($recordIds);
-        }
-        foreach($recordIds as $recordId) {
-            HVerify::isRecordId($recordId);
-            $record     = $this->_model->getRecordById($recordId);
-            if(empty($record)) {
-                throw new HVerifyException(HResponse::lang('NO_THIS_RECORD', false));
-            }
-            //删除模块对应的表
-            //$this->_model->dropModelTable($record['en_name']);
-            //删除模块相关文件
-            $this->_deleteModelFiles($record['en_name']);
-            $this->_deleteFiles();
-            if(false === $this->_model->delete($recordId)) {
-                throw new HRequestException(HResponse::lang('DELETE_FAIL', false));
-            }
-        }
-        HResponse::succeed(
-            HResponse::lang('DELETE_SUCCESS', false), 
-            HResponse::url('modelmanager', '', 'admin')
+        parent::_otherJobsAfterList();
+        $this->_assignModelTypeMap();
+        HResponse::registerFormatMap(
+            'has_multi_lang',
+            'name',
+            ModelmanagerPopo::$hasMultiLangMap
         );
     }
 
     /**
-     * 删除模块对应的资源项 
+     * 添加视图后驱
      * 
-     * @access protected
-     * @exception HRequestException 请求异常 
+     * {@inheritdoc}
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
      */
-    protected function _deleteModelFiles($modelEnName)
+    protected function _otherJobsAfterAddView()
     {
-        foreach(ModelManagerPopo::$deleteResources as $item) {
-            try {
-                $path   = ROOT_DIR . DS . sprintf($item, $modelEnName);
-                HDir::isDir($path) ? HDir::delete($path) : HFile::delete($path);
-            } catch(HIOException $ex) {
-                if(true == HObject::GC('DEBUG')) {
-                    throw new HRequestException($ex->getMessage());
-                }
-            }
-        }
+        parent::_otherJobsAfterAddView();
+        $this->_assignModelTypeList();
+        HResponse::setAttribute('has_multi_lang_list', ModelmanagerPopo::$hasMultiLangMap);
+    }
+
+    /**
+     * 编辑视图后驱
+     * 
+     * {@inheritdoc}
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     */
+    protected function _otherJobsAfterEditView()
+    {
+        parent::_otherJobsAfterEditView();
+        $this->_assignModelTypeList();
+        HResponse::setAttribute('has_multi_lang_list', ModelmanagerPopo::$hasMultiLangMap);
+    }
+
+    /**
+     * 加载模块类型映射
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access private
+     */
+    private function _assignModelTypeMap()
+    {
+        $category   = HClass::quickLoadModel('category');
+        HResponse::registerFormatMap(
+            'type', 
+            'name', 
+            HArray::turnItemValueAsKey(
+                $category->getSubCategoryByIdentifier('model-category', false), 'id'
+            )
+        );
+    }
+
+    /**
+     * 加载模块类型列表
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access private
+     */
+    private function _assignModelTypeList()
+    {
+        $category   = HClass::quickLoadModel('category');
+        HResponse::setAttribute(
+            'type_list', 
+            $category->getSubCategoryByIdentifier('model-category', false)
+        );
     }
 
 }

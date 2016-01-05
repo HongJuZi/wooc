@@ -8,7 +8,7 @@
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 /**
  * @point
@@ -210,6 +210,52 @@ class HArray
         }
         
         return '[' . implode(',', $json) . ']';
+    }
+
+    /**
+     * 转换Map成ListMap
+     * 
+     * 可以指定Key => value对应的键，如：
+     * array(1 => 'test') => turnMapToListMap($map, $list, array('id', 'name'))
+     * ====> array(array('id' => 1, 'name' => 'test'))
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public static
+     */
+    public static function turnMapToListMap($map, $fields)
+    {
+        $list   = array();
+        foreach($map as $key => $value) {
+            $list[$key]     = array($fields[0] => $key, $fields[1] => $value);
+        }
+
+        return $list;
+    }
+
+
+    /**
+     * 对二维数组排序
+     * 
+     * @desc
+     * 
+     * @author licheng
+     * @access public static
+     * @param  Array $arr 排序数组
+     * @param  String $keys 排序字段
+     * @param  String $type 排序方式：asc，desc
+     * @return Array:返回排序好的数组
+     */
+    public static function arraySort($arr,$keys,$type = 'asc'){
+        $keysvalue = $new_array = array();
+        foreach ($arr as $k => $v) {
+            $keysvalue[$k] = $v[$keys];
+        }
+        $type == 'asc'?asort($keysvalue):arsort($keysvalue);
+        reset($keysvalue);
+        foreach ($keysvalue as $k => $v) {
+            $new_array[$k] = $arr[$k];
+        }
+        return $new_array;
     }
 
 }

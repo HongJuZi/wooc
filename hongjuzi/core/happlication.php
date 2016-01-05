@@ -8,7 +8,7 @@
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 /**
  * 网站应用基类
@@ -52,24 +52,18 @@ class HApplication extends HObject
     public static function run()
     {
         try {
-            HObject::loadSysCfg();
-            $app    = self::getInstance()->doRouter();
-            HObject::loadAppCfg();
-            $app->recordRequest()
-                ->loadWebsite()
-                ->loadAppLangCfg()
-                ->importModelActionFile()
-                ->invokeAction();
+            $app    = self::getInstance();
+            $app->startUp();
         } catch(HVerifyException $ex) {
            self::_reponseMessage($ex);
         } catch(HRequestException $ex) {
             self::_reponseMessage($ex);
         } catch(HIOException $ex) {
             HLog::write($ex->getMessage(), HLog::$L_ERROR);
-            HResponse::redirect(HResponse::url('error/notfound', '', 'public'));
+            $app->notFound();
         } catch(HNotFoundException $ex) {
             HLog::write($ex->getMessage(), HLog::$L_ERROR);
-            HResponse::redirect(HResponse::url('error/notfound', '', 'public'));
+            $app->notFound();
         } catch(Exception $ex) {
             HLog::write($ex->getMessage(), HLog::$L_ERROR);
             self::_reponseMessage(new Exception('抱歉！服务器正忙，请您稍后再试～'));
@@ -77,16 +71,110 @@ class HApplication extends HObject
     }
 
     /**
-     * 加载哪一个网站信息
+     * 开启应用
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
      */
-    public function loadWebsite()
+    public function startup()
     {
-        if(!HSession::getAttributeByDomain('website')) {
-            $website        = HClass::quickLoadModel('website');
-            HSession::setAttributeByDomain($website->getRecordByIdentifier('main'), 'website');
+        HObject::loadSysCfg();
+        $this->_fixInvokeMethod()->_doRouter();
+        HObject::loadAppCfg();
+        $this->_defineSiteUrl();
+        HObject::loadSiteCfg();
+        $this->_recordRequest()
+            ->_loadFrameworkLangDict()
+            ->_importModelActionFile()
+            ->_invokeAction();
+    }
+
+    /**
+     * 定义网站访问地址
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access private
+     */
+    private function _defineSiteUrl()
+    {
+        if(true === HObject::GC('OPEN_SHORT_URL')) {
+            @define('SITE_URL', 'http://' . $_SERVER['HTTP_HOST'] . '/');
+            return $this;
+        }
+        //定义网站根目录路径
+        if(!$_SERVER['REQUEST_URI']) {
+            @define('SITE_URL', null);
+            return $this;
+        }
+        $loc    = strpos($_SERVER['REQUEST_URI'], '.php');
+        if(false !== $loc) {
+            $index	= substr($_SERVER['REQUEST_URI'], 0, $loc - 6); // + 4 长url
+        } else { 
+            $index  = '';
+            if($_SERVER['REQUEST_URI']) {
+                $loc    = strpos($_SERVER['REQUEST_URI'], '?');
+                $index  = false === $loc ? $_SERVER['REQUEST_URI'] : substr($_SERVER['REQUEST_URI'], 0, $loc);
+            }
+        }
+        if(!$index || strrpos($index, '/') !== (strlen($index) - 1)) {
+            $index      .= '/';
+        }
+        @define('SITE_URL', 'http://' . $_SERVER['HTTP_HOST'] . $index);
+
+        return $this;
+    }
+
+    /**
+     * 加载框架语言字典
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
+     */
+    protected function _loadFrameworkLangDict()
+    {
+        HTranslate::loadDict(ROOT_DIR . 'config/i18n/framework/hongjuzi.php');
+
+        return $this;
+    }
+
+    /**
+     * 重新导航
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public
+     * @param $url 跳转链接
+     */
+    public function notFound()
+    {
+        if(false === IS_CLI) {
+            HResponse::redirect(HResponse::url('error/notfound', '', 'public'));
+            return;
+        }
+        echo sprintf("[%d]\tOops, the page has not found!", 404);
+    }
+
+    /**
+     * 校对请求方式
+     *
+     * 支持CLI及浏览器的请求，自动切换
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public
+     * @return HApplication 当前请求对象
+     */
+    protected function _fixInvokeMethod()
+    {
+        if ($_SERVER['SERVER_ADDR'] || (substr(php_sapi_name(), 0, 3) != 'cli')) {
+            return $this;
+        }
+        if(2 > count($_SERVER['argv'])) {
+            throw new HVerifyException('Unknow Command, Usage: index.php app/model/action {QueryString}');
+        }
+        $_SERVER['REQUEST_METHOD']  = 'GET'; //一定要大写...
+        $_SERVER['PATH_INFO']       = $_SERVER['argv'][1];
+        if(isset($_SERVER['argv'][2])) {
+            parse_str($_SERVER['argv'][2], $_GET);
+            return $this;
         }
 
         return $this;
@@ -100,11 +188,15 @@ class HApplication extends HObject
      */
     protected static function _reponseMessage($ex)
     {
+        if(true === IS_CLI) { 
+            echo sprintf("[%d]\t%s\n", $ex->status, $ex->getMessage());
+            return;
+        }
         try {
             HVerify::isAjax();
             HResponse::json(array('rs' => false, 'message' => $ex->getMessage(), 'status' => $ex->status));
         } catch(HVerifyException $e) {
-            HResponse::alert($ex->getMessage(), -1, 1, $ex->status);
+            HResponse::alert($ex->getMessage(), -1, 2, $ex->status);
         }
     }
 
@@ -116,27 +208,13 @@ class HApplication extends HObject
      * @access public
      * @return HApplication 当前应用
      */
-    public function doRouter()
+    protected function _doRouter()
     {
         $router     = HRouter::getInstance()->parseUrl(HObject::GC('URL_MODE'));
         HResponse::setAttribute('HONGJUZI_APP', $router->get('app'));
         HResponse::setAttribute('HONGJUZI_MODEL', $router->get('model'));
         HResponse::setAttribute('HONGJUZI_ACTION', strtolower($router->get('action')));
         unset($router);
-
-        return $this;
-    }
-
-    /**
-     * 加载应用对应的语言配置文件
-     * 
-     * @author xjiujiu <xjiujiu@foxmail.com>
-     * @access public
-     * @return HApplication 当前应用
-     */
-    public function loadAppLangCfg()
-    {
-        HResponse::loadLang(HResponse::getAttribute('HONGJUZI_APP'));
 
         return $this;
     }
@@ -149,8 +227,18 @@ class HApplication extends HObject
      * @access protected
      * @return HApplication 当前应用
      */
-    public function importModelActionFile()
+    protected function _importModelActionFile()
     {
+        //设置当前的主题
+        $this->_setCurTheme();
+        //开启模板类的插件机制
+        $themeAction     = 'static/template/' . HResponse::getAttribute('HONGJUZI_APP') 
+            . DS . HObject::GC('CUR_THEME') 
+            . '/action/' . HResponse::getAttribute('HONGJUZI_MODEL') . 'action';
+        if(file_exists($themeAction . '.php')) {
+            HClass::import($themeAction);
+            return $this;
+        }
         HClass::import(
             'app.' .  HResponse::getAttribute('HONGJUZI_APP') 
             . '.action.'. HResponse::getAttribute('HONGJUZI_MODEL') . 'action'
@@ -160,11 +248,43 @@ class HApplication extends HObject
     }
 
     /**
+     * 设置当前的模板主题
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
+     */
+    protected function _setCurTheme()
+    {
+        if('install' === HResponse::getAttribute('HONGJUZI_APP')) {
+            return;
+        }
+        $where      =  '`app` = \'' . HResponse::getAttribute('HONGJUZI_APP') . '\'';
+        $theme      = HClass::quickLoadModel('theme');
+        if(!HRequest::getParameter('theme')) {
+            $record  = $theme->getRecordByWhere('`status` = 3 AND ' . $where);
+            if(!$record) {
+                //如果没对应的主题，使用默认！
+                HLog::write('网站还没有设置使用的主题，请您稍后再来！', HLog::$L_ERROR);
+                return;
+            }
+            HObject::SC('CUR_THEME', $record['identifier']);
+            return;
+        }
+        $record     = $theme->getRecordByWhere(
+            '`identifier` = \'' . HRequest::getParameter('theme') . '\'' . ' AND ' . $where
+        );
+        if(!$record) {
+            return;
+        }
+        HObject::SC('CUR_THEME', HRequest::getParameter('theme'));
+    }
+
+    /**
      * 调用请求的动作 
      * 
      * @access public
      */
-    public function invokeAction()
+    protected function _invokeAction()
     {
         $className  = ucfirst(HResponse::getAttribute('HONGJUZI_MODEL')) . 'Action';
         $method     = HResponse::getAttribute('HONGJUZI_ACTION');
@@ -187,12 +307,14 @@ class HApplication extends HObject
      * @access public
      * @return HApplication 当前应用
      */
-    public function recordRequest()
+    protected function _recordRequest()
     {
-        try {
-            HVerify::isAjax();
+        if('POST' == $_SERVER['REQUEST_METHOD']) {
             return $this;
-        } catch(HVerifyException $ex) { }
+        }
+        if(true === HVerify::isAjaxByBool()){
+            return $this;
+        }
         $referenceList  = !HSession::getAttribute('referenceList') ? array() : HSession::getAttribute('referenceList');
         if(count($referenceList) > 2) {
             array_pop($referenceList);
@@ -205,6 +327,20 @@ class HApplication extends HObject
         );
         array_unshift($referenceList, $reference);
         HSession::setAttribute('referenceList', $referenceList);
+
+        return $this;
+    }
+
+    /**
+     * 加载应用对应的语言配置文件
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public
+     * @return HApplication 当前应用
+     */
+    protected function _loadAppLangCfg()
+    {
+        HTranslate::loadDict(HResponse::getAttribute('HONGJUZI_APP'));
 
         return $this;
     }

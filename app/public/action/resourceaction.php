@@ -10,6 +10,7 @@ defined('_HEXEC') or die('Restricted access!');
 
 //导入引用文件
 HClass::import('config.popo.resourcepopo, app.public.action.PublicAction, app.oauth.action.auseraction, model.resourcemodel');
+HClass::import('app.oauth.action.auseraction');
 
 /**
  * 文件资源的动作类 
@@ -26,8 +27,6 @@ class ResourceAction extends PublicAction
     /**
      * 认证用户登录
      * 
-     * @desc
-     * 
      * {@inheritdoc}
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
@@ -35,13 +34,10 @@ class ResourceAction extends PublicAction
     public function beforeAction() 
     {
         AUserAction::isLogined();
-        parent::beforeAction();
     }
 
     /**
      * 构造函数 
-     * 
-     * 初始化类变量 
      * 
      * @access public
      */
@@ -52,95 +48,279 @@ class ResourceAction extends PublicAction
     }
 
     /**
-     * 异步上传
-     * 
-     * @desc
+     * 上传文件
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
      */
-    public function aupload()
+    public function auploadfile()
     {
-        try {
-            if(empty($_FILES)) {
-                throw new HVerifyException('文件不能为空！');
-            }
-            HVerify::isEmpty(HRequest::getParameter('hash'), '哈希');
-            $fieldCfg       = $this->_popo->getFieldCfg('path');
-            if(null === $fieldCfg) {
-                throw new HVerifyException('信息属性不存，请确认！');
-            }
-            $type           = HFile::getExtension($_FILES['path']['name']);
-            if('*' !== $fieldCfg['type'] && !in_array($type, $fieldCfg['type'])) {
-                throw new HVerifyException('文件类型不支持！');
-            }
-            HRequest::setParameter('author', HSession::getAttribute('id', 'user'));
-            $fhash              = sha1_file($_FILES['path']['tmp_name']);
-            $resInfo            = $this->_model->getRecordByWhere('`fhash` = \'' . $fhash . '\'');
-            if(!$resInfo) {
-                $pathCfg            = $this->_popo->getFieldCfg('path');
-                $pathCfg['size']    = $fieldCfg['size'];
-                $pathCfg['zoom']    = $fieldCfg['zoom'];
-                $this->_popo->setFieldCfg('path', $pathCfg);
-                $this->_uploadFile();
-                //添加文件哈希
-                HRequest::setParameter('fhash', $fhash);
-                HRequest::setParameter('type', $type);
-                HRequest::setParameter('name', $_FILES['path']['name']);
-                HRequest::setParameter('description', HRequest::getParameter('name'));
-                $resId              = $this->_model->add(HPopoHelper::getAddFieldsAndValues($this->_popo));
-                if(1 > $resId) {
-                    throw new HRequestException('添加资源文件失败！');
-                }
-                $src    = HRequest::getParameter('path');
-            } else {
-                $resId  = $resInfo['id'];
-                $src    = $resInfo['path'];
-                $this->_zoomImage($resInfo['path'], $fieldCfg['zoom']);
-                HRequest::setParameter('name', $resInfo['name']);
-                HRequest::setParameter('description', $resInfo['name']);
-            }
-            $ldId       = $this->_addLinkedData($resId);
-            HResponse::json(array(
-                'rs' => true,
-                'name' => HRequest::getParameter('name'),
-                'id' => $ldId,
-                'src' => $src,
-                'small' => HFile::getImageZoomTypePath($src, 'small')
-            ));
-        } catch(HVerifyException $ex) {
-            HResponse::json(array('rs' => false, 'message' => $ex->getMessage()));
-        } catch(HRequestException $ex) {
-            HResponse::json(array('rs' => false, 'message' => $ex->getMessage()));
-        } catch(Exception $ex) {
-            HLog::write($ex->getMessage(), HLog::$L_ERROR);
-            HResponse::json(array('rs' => false, 'message' => '服务器繁忙，请您稍后再试！'));
-        }
+        $extension  = $this->_verifyUpload(10, 'file');
+        $fileInfo   = $this->_aupload($extension, false);
+
+        HResponse::json(array(
+            'rs' => true,
+            'data' => array(
+                'id' => $fileInfo['id'],
+                'name' => $fileInfo['name'],
+                'src' => $fileInfo['path'],
+                'extension' => $extension
+            )
+        ));
     }
 
     /**
-     * 添加关联数据
+     * 上传图片
      * 
-     * @desc
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public
+     */
+    public function auploadimage()
+    {
+        HRequest::setParameter('is_ajax', true);
+        $extension  = $this->_verifyUpload(0.5, 'image');
+        $fileInfo   = $this->_aupload($extension, true);
+        $linked     = $this->_addResourceLinkedData($fileInfo);
+
+        HResponse::json(array(
+            'rs'    => true,
+            'data'  => array(
+                'id'    => $fileInfo['id'],
+                'name'  => $fileInfo['name'],
+                'src'   => $fileInfo['path'],
+                'small' => HFile::getImageZoomTypePath($fileInfo['path'], 'small'),
+                'extension' => $extension,
+                'linked' => $linked
+            )
+        ));
+    }
+
+    /**
+     * 上传视频
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public
+     */
+    public function auploadvideo()
+    {
+        HRequest::setParameter('is_ajax', true);
+        $extension  = $this->_verifyUpload(50, 'video');
+        $fileInfo   = $this->_aupload($extension, false);
+        $linked     = $this->_addResourceLinkedData($fileInfo);
+
+        HResponse::json(array(
+            'rs' => true,
+            'data' => array(
+                'id' => $fileInfo['id'],
+                'name' => $fileInfo['name'],
+                'src' => $fileInfo['path'],
+                'extension' => $extension,
+                'linked' => $linked
+            )
+        ));
+    }
+
+    /**
+     * 上传音频
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public
+     */
+    public function auploadaudio()
+    {
+        HRequest::setParameter('is_ajax', true);
+        $extension  = $this->_verifyUpload(10, 'audio');
+        $fileInfo   = $this->_aupload($extension, false);
+        $linked     = $this->_addResourceLinkedData($fileInfo);
+
+        HResponse::json(array(
+            'rs' => true,
+            'data' => array(
+                'id' => $fileInfo['id'],
+                'name' => $fileInfo['name'],
+                'src' => $fileInfo['path'],
+                'extension' => $extension,
+                'linked' => $linked
+            )
+        ));
+    }
+
+    /**
+     * @var private static $_extMap    扩展名映射
+     */
+    private static $_extMap    = array(
+        'file' => array('.apk', '.doc', '.ipa', '.ppt', '.rar', '.pdf', '.xls', '.xlsx'),
+        'image' => array('.jpg', '.png', '.gif', '.bmp', '.jpeg'),
+        'video' => array('.mp4','.avi','.3gp','.rmvb','.wmv','.mkv','.mpg','.mov','.vob','.flv', '.asf'),
+        'audio' => array('.mp3','.wma','.wav', '.ape', '.ogg', '.flac')
+    );
+    
+    /**
+     * 内部使用的上传接口
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @param  $extension 类型
+     * @param  $isZoom 是否压缩
+     * @access private
+     */
+    private function _aupload($extension, $isZoom = false)
+    {
+        $fhash      = sha1_file($_FILES['path']['tmp_name']);
+        $fileInfo   = $this->_model->getRecordByWhere('`fhash` = \'' . $fhash . '\'');
+        if(!$fileInfo) {
+            $this->_uploadFile();
+            $fileInfo   = $this->_addNewFile($extension, $fhash);
+            if(true === $isZoom) {
+                $popo   = HClass::quickLoadPopo(HRequest::getParameter('model'));
+                $cfg    = $popo->getFieldCfg(HRequest::getParameter('field'));
+                $cfg    = array_merge($cfg, $this->_popo->getFieldCfg('path'));
+                if($cfg['zoom']) {
+                    $this->_zoomImage($fileInfo['path'], $cfg['zoom']);
+                }
+            }
+        }
+
+        return $fileInfo;
+    }
+
+    /**
+     * 添加文件资源关联数据
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access private
-     * @param  int $redId 新添加的文件id
-     * @return int 当前新加关联资源的ID
+     * @param $file 文件信息
+     * @return array 关联数据
      */
-    private function _addLinkedData($resId)
+    private function _addResourceLinkedData($file)
     {
-        HRequest::setParameter('res_id', $resId);
-        HRequest::setParameter('parent_id', HSession::getAttribute('id', 'user'));
+        if(HRequest::getParameter('nolinked')) {
+            return;
+        }
+        if(!HRequest::getParameter('linked') || !HRequest::getParameter('model')) {
+            return '格式不符合！关联添加数据格式：{linked: hash, model: name}，请确认！';
+        }
         $linkedData     = HClass::quickLoadModel('linkeddata');
+        $linkedData->setRelItemModel(HRequest::getParameter('model'), 'resource');
+        $record         = $linkedData->getRecordByWhere(
+            '`rel_id` = \'' . HRequest::getParameter('linked') . '\' AND `item_id` = ' . $file['id']
+        );
+        if($record) {
+            return $record;
+        }
+        $data           = array(
+            'rel_id' => HRequest::getParameter('linked'),
+            'item_id' => $file['id'],
+            'author' => HSession::getAttribute('id', 'user'),
+        );
+        $id             = $linkedData->add($data);
+        if(1 > $id) {
+            throw new HRequestException('添加文件关联数据失败，请联系管理员！');
+        }
+        $data['id']     = $id;
 
-        return $linkedData->add(HPopoHelper::getAddFieldsAndValues($linkedData->getPopo()));
+        return $data;
+    }
+
+    /**
+     * 添加新文件
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access private
+     * @param $type 类型
+     * @param  $fhash 校验码
+     * @return 数据
+     */
+    private function _addNewFile($type, $fhash)
+    {
+        $fileInfo   = array(
+            'name' => $_FILES['path']['name'],
+            'type' => $type,
+            'path' => HRequest::getParameter('path'),
+            'fhash' => $fhash,
+            'author' => HSession::getAttribute('id', 'user')
+        );
+        $fileInfo['id']      = $this->_model->add($fileInfo);
+        if(1 > $fileInfo['id']) {
+            throw new HRequestException('添加资源文件失败！');
+        }
+
+        return $fileInfo;
+    }
+
+    /**
+     * 验证上传
+     *
+     * @access private
+     */
+    private function _verifyUpload($size, $type)
+    {
+        if(empty($_FILES)) {
+            throw new HVerifyException('文件不能为空！');
+        }
+        if($_FILES['path']['size'] > ($size * 1000 * 1000)) {
+            throw new HVerifyException('上传文件限制大小为');
+        }
+        $extension  = HFile::getExtension($_FILES['path']['name']);
+        if('*' === $type) {
+            return $extension;
+        }
+        if(!isset(self::$_extMap[$type])) {
+            throw new HVerifyException('类型不存在，请确认！');
+        }
+        if(!in_array($extension, self::$_extMap[$type])) {
+            throw new HVerifyException('文件类型不支持！');
+        }
+
+        return $extension;
+    }
+
+    /**
+     * 异步下载
+     */
+    public function adownload()
+    {
+        HVerify::isAjax();
+        $url        = urldecode(HRequest::getParameter('url'));
+        HVerify::isEmpty($url, '下载地址');
+        $fhash      = md5($url);
+        $record     = $this->_model->getRecordByWhere('`fhash` = \'' . $fhash . '\'');
+        if($record) {
+            $name   = $record['name'];
+            $src    = $record['path'];
+            $id     = $record['id'];
+        }else{
+            $pathInfo   =  pathinfo($url);
+            HClass::import('hongjuzi.filesystem.hdir');
+            $path   = 'static/uploadfiles/resource/' . date('Y/m/d', $_SERVER['REQUEST_TIME']) . '/';
+            HDir::create(ROOT_DIR . DS . $path); 
+            $filePath   = $path . HRequest::download($url, ROOT_DIR . $path, '', 1);
+            $name       = $pathInfo['basename'];
+            $src        = $filePath;
+            $data       = array(
+                'path'      => $filePath,
+                'name'      => $pathInfo['basename'],
+                'type'      => $pathInfo['extension'],
+                'fhash'     => $fhash,
+                'author'    => HSession::getAttribute('id', 'user')
+            );
+            $id          = $this->_model->add($data);
+            if(1 > $id) {
+                throw new HRequestException('音乐资源添加失败');
+            }
+        }
+
+        HResponse::json(array(
+            'rs'    => true, 
+            'data' => array(
+                'name'  => $name,
+                'src'   => $src,
+                'id'   => $id
+            )
+        ));
     }
 
     /**
      * 异步删除资源
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access public
@@ -148,35 +328,32 @@ class ResourceAction extends PublicAction
     public function adelete()
     {
         HVerify::isAjax();
+        AuserAction::isLogined();
         HVerify::isRecordId(HRequest::getParameter('id'), '图片编号');
+        HVerify::isEmpty(HRequest::getParameter('rel_model'), '关联模块');
         $linkedData     = HClass::quickLoadModel('linkeddata');
-        if(1 > $linkedData->delete(HRequest::getParameter('id'))) {
-            throw new HRequestException('请确认图片是否存在～');
-        }
-        HResponse::json(array('rs' => true));
-    }
-
-    /**
-     * 修改资源所在的文件夹
-     * 
-     * @desc
-     * 
-     * @author xjiujiu <xjiujiu@foxmail.com>
-     * @access public
-     */
-    public function achgfolder()
-    {
-        HVerify::isAjax();
-        HVerify::isEmpty(HRequest::getParameter('id'), '编号');
-        HVerify::isEmpty(HRequest::getParameter('folder'), '文件夹');
-        $linkedData     = HClass::quickLoadModel('linkeddata');
-        $record         = $linkedData->getRecordById(HRequest::getParameter('id'));
+        $record         = $linkedData->setRelItemModel(HRequest::getParameter('rel_model'), 'resource')
+            ->getRecordById(HRequest::getParameter('id'));
         if(!$record) {
-            throw new HVerifyException('文件已经被删除，请确认！');
+            throw new HVerifyException('请确认关联信息是否存在～');
         }
-        $data   = array('id' => HRequest::getParameter('id'), 'folder' => HRequest::getParameter('folder'));
-        if(1 > $linkedData->edit($data)) {
-            throw new HRequestException('修改失败，请联系管理员～');
+        if(HSession::getAttribute('id', 'user') != $record['author']) {
+            throw new HVerifyException('你没有操作此文件的权限！');
+        }
+        $res            = $this->_model->getRecordById($record['item_id']);
+        if(!$res) {
+            throw new HVerifyException('请确认图片是否存在～');
+        }
+        $totalUse       = intval($res['total_use']) - 1;
+        $data           = array(
+            'id' => $record['item_id'],
+            'total_use' => $totalUse
+        );
+        if(1 > $this->_model->edit($data)) {
+            throw new HRequestException('更新资源使用数量失败！');
+        }
+        if(1 > $linkedData->delete(HRequest::getParameter('id'))) {
+            throw new HRequestException('删除关联信息失败， 请确认～');
         }
         HResponse::json(array('rs' => true));
     }

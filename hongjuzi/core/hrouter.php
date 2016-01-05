@@ -8,7 +8,7 @@
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 /**
  * 网站链接的解析类 
@@ -60,9 +60,9 @@ class HRouter extends HObject
      */
 	public function __construct()
     {
-        $this->_app     = HObject::GC('DEFAULT_APP');
         $this->_model   = 'index';
         $this->_action  = 'index';
+        $this->_app     = HObject::GC('DEF_APP');
     }
 
     /**
@@ -90,18 +90,15 @@ class HRouter extends HObject
      * 
      * @access public 
      * @param string $urlMode 指定的url解析方式，默认为：'pathinfo'
-     * @return void 
-     * @exception none
+     * @return 当前对象
      */
     public function parseUrl($urlMode = 'pathinfo')
     {
         switch($urlMode) {
-            case 'pathinfo':
+            case 'pathinfo': //路径模式解析
                 return $this->_parseUrlByPathInfo();
-            case 'custom':
-                return $this->_parseUrlByCustom();
             default:
-            case 'normal':
+            case 'normal': //查询参数方式
                 return $this->_parseUrlByNormal();
         }
     }
@@ -152,8 +149,6 @@ class HRouter extends HObject
     /**
      * 是/app的访问形式
      * 
-     * @desc
-     * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access private
      * @param  Array $pathInfo 当前访问pathInfo信息
@@ -174,8 +169,6 @@ class HRouter extends HObject
 
     /**
      * 是App/Model访问形式
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access private
@@ -199,8 +192,6 @@ class HRouter extends HObject
 
     /**
      * 是app/model/action访问形式
-     * 
-     * @desc
      * 
      * @author xjiujiu <xjiujiu@foxmail.com>
      * @access private
@@ -226,11 +217,12 @@ class HRouter extends HObject
      * 
      * @access protected
      * @return boolean 
-     * @exception none
      */
-    protected function _parseUrlByCustom()
+    protected function _parseUrlByCli()
     {
-        return true;
+        $this->_app     = $pathInfo[0];
+        $this->_model   = $pathInfo[1];
+        $this->_action  = ucfirst($pathInfo[2]);
     }
 
     /**
@@ -247,7 +239,6 @@ class HRouter extends HObject
      * 
      * @access protected
      * @return boolean 
-     * @exception none
      */
     protected function _parseUrlByNormal()
     {

@@ -1,11 +1,11 @@
 <?php
 
 /**
- * @version			$Id$
- * @create 			2012-5-11 23:11:40 By xjiujiu
- * @package 		app.admin
- * @subpackage 		model
- * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
+ * @version         $Id$
+ * @create          2012-5-11 23:11:40 By xjiujiu
+ * @package         app.admin
+ * @subpackage      model
+ * @copyRight       Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
 defined('_HEXEC') or die('Restricted access!');
@@ -17,9 +17,9 @@ HClass::import('vendor.mail.phpmailer.class..PHPMailer');
  * 
  * @desc
  * 
- * @author 			xjiujiu <xjiujiu@foxmail.com>
- * @package 		app.admin.model
- * @since 			1.0.0
+ * @author          xjiujiu <xjiujiu@foxmail.com>
+ * @package         app.admin.model
+ * @since           1.0.0
  */
 class HEmail extends HObject
 {
@@ -82,6 +82,7 @@ class HEmail extends HObject
         $this->_mailer->Encoding    = 'base64';
         $this->_mailer->SetFrom($this->_mailCfg['mailFromEmail'], $this->_mailCfg['mailFromName']);
         $this->_mailer->AddReplyTo($this->_mailCfg['mailReplyEmail'], $this->_mailCfg['mailReplyName']);
+
     }
 
     /**
@@ -93,7 +94,7 @@ class HEmail extends HObject
      * @return void
      * @exception none
      */
-    protected function _initMailerByStmp()
+    protected function _initMailerBySmtp()
     {
         $this->_mailer->IsSMTP();
         $this->_mailer->STMPDebug   = 1;
@@ -113,7 +114,7 @@ class HEmail extends HObject
     protected function _initMailerByGmail()
     {
         $this->_mailer->SMTPSecure  = 'ssl';
-        $this->_initMailerByStmp();
+        $this->_initMailerBySmtp();
     }
 
     /**
@@ -166,8 +167,8 @@ class HEmail extends HObject
         $this->_body        = $this->_getBody($body);
 
         switch($this->_mailCfg['mailMethod']) {
-            case 'stmp':
-                return $this->_sendByStmp();
+            case 'smtp':
+                return $this->_sendBySmtp();
             case 'pop3':
                 return $this->_sendByPop3();
             case 'gmail':
@@ -201,9 +202,9 @@ class HEmail extends HObject
      * @return boolean 
      * @exception none
      */
-    protected function _sendByStmp()
+    protected function _sendBySmtp()
     {
-        $this->_initMailerByStmp();
+        $this->_initMailerBySmtp();
 
         return $this->_send();
     }
@@ -304,6 +305,8 @@ class HEmail extends HObject
      */
     protected function _addAddress($to)
     {
+        //清空收件箱邮箱
+        $this->_mailer->ClearAddresses();
         if(!is_array($to)) {
             $to  = explode(';', $to);
         }

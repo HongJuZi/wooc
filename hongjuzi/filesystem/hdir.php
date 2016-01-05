@@ -8,7 +8,7 @@
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 /**
  * 文件夹操作类 
@@ -54,18 +54,22 @@ class HDir extends HObject
                 foreach($dirLevel as $subDir) {
                     $dirPath    = self::_formatDirPath($dirPath . $subDir . DS);
                     if(!is_dir($dirPath)) {
+                        $mask   = umask(0);
                         if(!mkdir($dirPath, $mode)) {
                             throw new HIOException($dirPath . '目录创建失败！');
                         }
                         @chmod($dirPath, $mode);
+                        umask($mask);
                     }
                 }
-            } else {
-                if(!mkdir(self::_formatDirPath($dir), $mode)) {
-                    throw new HIOException($dir . '目录创建失败！');
-                }
-                @chmod($dirPath, $mode);
+                continue;
             }
+            $mask   = umask(0);
+            if(!mkdir(self::_formatDirPath($dir), $mode)) {
+                throw new HIOException($dir . '目录创建失败！');
+            }
+            @chmod($dirPath, $mode);
+            umask($mask);
         }
     }
 
@@ -116,24 +120,21 @@ class HDir extends HObject
      * @return array 找到的所有文件
      * @exception none
      */
-    public static function getFiles($dirPath = '', $includeSubDirs = false)
+    public static function getFiles($dirPath = '', $includeSubDirs = false, $filter = null)
     {
         $files      = array();
         if(($dirHandle = self::_openDir($dirPath))) {
             while(false !== ($file = readdir($dirHandle))) {
-                $file   = HString::formatEncodeFromOs($file);
                 if(true === self::_isCurParentDir($file)) {
                     continue;
                 }
+                $file       = HString::formatEncodeFromOs($file);
                 $filePath   = self::_formatDirPath($dirPath) . DS . $file;
-                if(true === self::isDir($filePath)) {
-                    if(true === $includeSubDirs) {
-                        $subFiles   = self::getFiles($filePath, true);
-                        if(!empty($subFiles)) {
-                            $files  = array_merge($files, $subFiles);
-                        }
-                    }
-                } else {
+                if(true === self::isDir($filePath) && true === $includeSubDirs) {
+                    $files  = array_merge($files, self::getFiles($filePath, $includeSubDirs, $filter));
+                    continue;
+                }
+                if(null === $filter || in_array(HFile::getExtension($file, ''), $filter)) {
                     $files[]    = $dirPath . DS . $file;
                 }
             }

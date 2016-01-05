@@ -8,8 +8,14 @@
                         <div class="login-container">
                         <div class="row-fluid">
                             <div class="center">
-                                <h1><span class="red">红橘子</span> <span class="white">后台管理入口</span><img src="<?php echo HResponse::uri('admin'); ?>/images/logo.png" /></h1>
-                                <h4 class="blue">&copy;2014 <a href="http://www.hongjuzi.net" target="_blank" >红橘子信息科技工作室</a></h4>
+                                <h1><span class="white"><?php echo $siteCfg['name']; ?></span></h1>
+                                <h4 class="blue">
+                                    &copy; 2015 
+                                    <a href="http://www.hongjuzi.net" target="_blank">
+                                        红橘子科技有限公司
+                                        <img src="<?php echo HResponse::uri(); ?>/images/logo.png" />
+                                    </a>
+                                </h4>
                             </div>
                         </div>
                         <div class="space-6"></div>
@@ -37,7 +43,7 @@
                                             <label>
                                                 <span class="block input-icon input-icon-right">
                                                     <img src="<?php echo HResponse::url('vcode', '', 'public'); ?>" class="span3" title="看不清楚?请点击更换." id="vcode-img"/>
-                                                    <input type="text" class="span9" placeholder="验证码" id="vcode" name="vcode"/>
+                                                    <input type="text" class="span9" placeholder="请输入验证码..." id="vcode" name="vcode" data-def="请输入验证码..."/>
                                                 </span>
                                             </label>
                                             <div class="space"></div>
@@ -95,15 +101,7 @@
 				</div><!--/row-->
 			</div>
 		</div><!--/.fluid-container-->
-		<!-- basic scripts -->
-		<script src="<?php echo HResponse::uri('cdn');?>/jquery/jquery.js"></script>
-		<script src="<?php echo HResponse::uri('cdn');?>/hhjslib/hhjslib.js"></script>
-		<script src="<?php echo HResponse::uri('cdn');?>/hhjslib/hhjslib.hhfile.js"></script>
-		<script src="<?php echo HResponse::uri('cdn');?>/hhjslib/hhjslib.hhvalidate.js"></script>
-		<script src="<?php echo HResponse::uri('cdn');?>/hhjslib/hhjslib.hhdialog.js"></script>
         <script type="text/javascript" src="<?php echo HResponse::uri('admin'); ?>/js/hjz-extend.js"></script>
-		<!-- page specific plugin scripts -->
-		<!-- inline scripts related to this page -->
         <script type="text/javascript" src="<?php echo HResponse::uri('admin'); ?>/js/login.js"></script>
 	</body>
 </html>

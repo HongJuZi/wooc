@@ -8,7 +8,7 @@
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 //定义Mysql的查询结果类型
 define('ASSOC', MYSQLI_ASSOC);
@@ -49,11 +49,7 @@ class HMysqli extends HMysqlBase
     /**
      * 构造函数 
      * 
-     * @desc
-     * 
      * @access public
-     * @return void
-     * @exception none
      */
 	public function __construct($hConfigs)
     {
@@ -66,11 +62,7 @@ class HMysqli extends HMysqlBase
     /**
      * 克隆方法 
      * 
-     * @desc
-     * 
      * @access public
-     * @return void
-     * @exception none
      */
     public function __clone() {}
 
@@ -81,7 +73,6 @@ class HMysqli extends HMysqlBase
      * 
      * @access public static
      * @return HMysqli 
-     * @exception none
      */
     public static function getInstance($hConfigs)
     {
@@ -95,11 +86,7 @@ class HMysqli extends HMysqlBase
     /**
      * 初始化数据库连接及选择对应的数据库 
      * 
-     * @desc
-     * 
      * @access protected
-     * @return void
-     * @throws none
      */
     protected function _initDb()
     {
@@ -121,7 +108,7 @@ class HMysqli extends HMysqlBase
             $this->_hConfigs->dbPort
         );
         if($this->_mysqli->connect_error) {
-            throw new HDatabaseException('数据库连接失败！' . $this->_mysqli->connect_error);
+            throw new HSqlException('数据库连接失败！' . $this->_mysqli->connect_error);
         }
     }
     
@@ -149,12 +136,8 @@ class HMysqli extends HMysqlBase
     /**
      * 得到查询结果 
      * 
-     * @desc
-     *
      * @param string $sql执行的Sql语句 
      * @access protected
-     * @return void
-     * @exception none
      */
     protected function _getResult($sql)
     {
@@ -164,11 +147,7 @@ class HMysqli extends HMysqlBase
     /**
      * 得到单条记录
      * 
-     * @desc
-     * 
      * @access public
-     * @return void
-     * @exception none
      */
     public function _getFetch($fetchMode = '')
     {
@@ -192,8 +171,6 @@ class HMysqli extends HMysqlBase
      * 当结果资源不为空时
      * 
      * @access protected
-     * @return void
-     * @exception none
      */
     protected function _freeResult()
     {
@@ -248,8 +225,6 @@ class HMysqli extends HMysqlBase
      * 这里得考虑一下是不是没有生成HSql对象的情况 
      * 
      * @access protected
-     * @return boolean 
-     * @exception none
      */
     protected function _isBindParam()
     {
@@ -268,7 +243,6 @@ class HMysqli extends HMysqlBase
      * 
      * @access public
      * @return int 
-     * @exception none
      */
     public function getLastInsertId()
     {
@@ -284,20 +258,35 @@ class HMysqli extends HMysqlBase
      * @param string $sql 需要执行的SQL语句
      * @param string $prefix 是否需要替换前缀
      * @return resource 
-     * @exception none
      */
     protected function _query($sql, $prefix = true)
     {
         $sql    = $prefix == true ? $this->_replaceTablePrefix($sql) : $sql;
+        $this->_reconnectDb();
         $query  = $this->_mysqli->query($sql);
         if(true === HObject::GC('DEBUG')) {
             echo $sql . '<br/>';
         }
         if(!$query) {
-            throw new HSqlParseException('SQL 语句执行错误！<br/>语句：' . $sql . '<br/>信息:' . $this->_mysqli->error);
+            throw new HSqlException('SQL exec fail: ' . $sql . '<br/>Message: ' . $this->_mysqli->error);
         }
 
         return $query;
+    }
+
+    /**
+     * 重新检测Db的连接情况
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access private
+     */
+    private function _reconnectDb()
+    {
+        if($this->_mysqli->ping()) {
+            return;
+        }
+        $this->_mysqli->close();
+        $this->_initDb();
     }
 
     /**
@@ -312,12 +301,9 @@ class HMysqli extends HMysqlBase
      */
     public function query($sql, $prefix = true)
     {
-        $sql    = $prefix == true ? $this->_replaceTablePrefix($sql) : $sql;
-        if(true === HObject::GC('DEBUG')) {
-            echo  $sql . '<br/>';
-        }
+        $this->_result  = $this->_query($sql);
 
-        return $this->_mysqli->query($sql);
+        return $this->_result;
     }
 
     /**
@@ -327,15 +313,13 @@ class HMysqli extends HMysqlBase
      * 
      * @access protected
      * @param string $sql
-     * @return void
-     * @exception none
      */
     protected function _prepare($sql)
     {
         $this->_getStmt();
         if(false === $this->_stmt->prepare($sql)) {
             $this->_freeHSql();
-            throw new HSqlParseException('SQL语句执行错误！' . $sql);
+            throw new HSqlException('SQL语句执行错误！' . $sql);
         }
         $rows     = $this->_hSql->getValues();
         if(!is_array($rows[0])) {
@@ -360,8 +344,6 @@ class HMysqli extends HMysqlBase
      * 用于执行绑定参数类的SQL执行 
      * 
      * @access protected
-     * @return void
-     * @exception none
      */
     protected function _getStmt()
     {
@@ -371,11 +353,7 @@ class HMysqli extends HMysqlBase
     /**
      * 关闭Mysqli的准备状态 
      * 
-     * 当 
-     * 
      * @access protected
-     * @return void
-     * @exception none
      */
     protected function _closeStmt()
     {
@@ -390,8 +368,6 @@ class HMysqli extends HMysqlBase
      * 每用完一次HSql对象就得重新生成不然会使用上一次的对象 
      * 
      * @access protected
-     * @return void
-     * @exception none
      */
     protected function _freeHSql()
     {
@@ -405,8 +381,6 @@ class HMysqli extends HMysqlBase
      * 
      * @access protected
      * @param array $values 字段对应的值
-     * @return void
-     * @exception none
      */
     protected function _bindParams($values)
     {
@@ -425,7 +399,6 @@ class HMysqli extends HMysqlBase
      * 
      * @access public
      * @return HMysqliSql
-     * @exception none
      */
     public function getSql()
     {
@@ -441,7 +414,6 @@ class HMysqli extends HMysqlBase
      * 
      * @access protected
      * @return string 
-     * @exception none
      */
     protected function getDbError()
     {

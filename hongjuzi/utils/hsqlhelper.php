@@ -6,7 +6,7 @@
  * @description HongJuZi Framework
  * @copyRight Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  */
-defined('HPATH_BASE') or die('Restricted access!');
+defined('HJZ_DIR') or die('Restricted access!');
 
 /**
  * SQL语句帮手类 
@@ -51,6 +51,34 @@ class HSqlHelper extends HObject
             return '1 = 2';
         }
         $whereIn{0}     = ' ';
+        if(empty($whereIn)) {
+            return '';
+        }
+        if(false !== strpos($field, '`')) {
+            return $field . ' IN ('. $whereIn . ' )';
+        }
+
+        return  '`' . $field . '` IN ('. $whereIn . ' )';
+    }
+
+    /**
+    *   同以上方法，二维数组 换成 索引数组
+    **/
+    public static function whereInByArray($field, array $list)
+    {
+        if(empty($list) || 1 > count($list)) {
+            return '1 = 2';
+        }
+        $whereIn   = '';
+        for ($i=0; $i < count($list); $i++) { 
+            if(!empty($list[$i]) ){
+                $whereIn   .= ',\'' . $list[$i] . '\''; 
+            }
+        }
+        if(!$whereIn) {
+            return '1 = 2';
+        }
+        $whereIn{0}     = ' ';
 
         return empty($whereIn) ? '' : '`' . $field . '` IN ('. $whereIn . ' )';
     }
@@ -72,6 +100,32 @@ class HSqlHelper extends HObject
     public static function whereIn($field, $data)
     {
         return '`' . $field . '` IN (\'' . implode('\', \'', array_unique($data)) . '\')';
+    }
+
+    /**
+     * 得到FIND_IN_SET字符串
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access public static
+     * @param  $field 字段
+     * @param  $attr 列表里的字段
+     * @param  $list 列表
+     * @return 得到FIND_IN_SET字符串
+     */
+    public static function findInSetByListMap($field, $attr, $list)
+    {
+        if(empty($list)) {
+            return null;
+        }
+        $findInSet  = '';
+        foreach($list as $item) {
+            $findInSet  .= ',' . $item[$attr];
+        }
+        if($findInSet) {
+            $findInSet{0}   = ' ';
+        }
+
+        return empty($list) ? null : ' FIND_IN_SET (`' . $field . '`, \'' . $findInSet . '\')';
     }
 
     /**
@@ -149,11 +203,12 @@ class HSqlHelper extends HObject
      */
     public static function whereOrByListMap($field, $extractField, $list)
     {
+        $whereOr        = '1 = 2';
         foreach($list as $map) {
-            $whereOr    .= '`' . $field . '` = \'' . $map[$extractField] . '\' OR ';
+            $whereOr    .= ' OR `' . $field . '` = \'' . $map[$extractField] . '\'';
         }
 
-        return $whereOr . ' 1 = 2';
+        return $whereOr;
     }
 
     /**
@@ -232,18 +287,15 @@ class HSqlHelper extends HObject
      */
     public static function mergeWhere($wheres, $method = ' ')
     {
-        $where      = '';
+        $where      = 'AND' == $method ? '1 = 1 ' : '1 = 2 ';
         if(HVerify::isEmpty($wheres))
-        	return '';
+        	return $where;
         $method     = strtoupper($method);
         foreach(array_filter($wheres) as $item) {
-            $where  .= ' (' . $item . ') ' . $method;
-        }
-        if(empty($where)) { 
-            return '';
+            $where  .=  $method . ' (' . $item . ') ';
         }
 
-        return 'AND' == $method ? $where . ' 1 = 1' : $where . ' 1 = 2';
+        return $where;
     }
 
 }

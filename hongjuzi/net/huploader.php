@@ -8,7 +8,7 @@
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 /**
  * 上传工具类 
@@ -138,7 +138,7 @@ class HUploader extends HObject
         }
         $descPath   = $savePath . DS . $this->_encodeFileName();
         if(!move_uploaded_file($this->_uploadFile['tmp_name'],
-           $this->_baseDir . DS . HString::formatEncodeToOs($descPath))) {
+            $this->_baseDir . DS . HString::formatEncodeToOs($descPath))) {
             return array('error' => '文件上传失败！');
         }
 
@@ -164,8 +164,6 @@ class HUploader extends HObject
     /**
      * 检测上传的文件类型是否合法 
      * 
-     * @desc
-     * 
      * @access protected
      */
     protected function _verifyFileType()
@@ -186,22 +184,19 @@ class HUploader extends HObject
     /**
      * 生成对应的存储文件夹路径
      * 
-     * @desc
-     * 
      * @access protected
      * @param boolean $isGenDateDir 是否生成当前的日期目录
      * @return string | null 
-     * @exception none
      */
     protected function _genSaveFolder($isGenDateDir)
     {
         HClass::import('hongjuzi.filesystem.HDir');
-        $datePath   = $isGenDateDir === true ? date('Ymd') : '';
+        $datePath   = $isGenDateDir === true ? date('Y/m/d') : '';
         try {
             HDir::create($this->_baseDir . DS . $this->_savePath . DS . $datePath);
             return $this->_savePath . DS . $datePath; 
         } catch(HIOException $ex) {
-            HLog::write($ex->getMessage(), HLog::L_WARN);
+            HLog::write($ex->getMessage(), HLog::$L_WARN);
             return null;
         }
         

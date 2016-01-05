@@ -6,7 +6,7 @@
  * @description     HongJuZi Framework
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 /**
  * 图片工具类 
@@ -107,28 +107,65 @@ class HImage extends HObject
     protected function _createNewImage($newWidth, $newHeight)
     {
         if(function_exists('imagecopyresampled')) {
-            $newImage  = imagecreatetruecolor($newWidth, $newHeight);
+            $outImg  = imagecreatetruecolor($newWidth, $newHeight);
             imagesavealpha($this->_source, true);
-            imagealphablending($newImage, false);
-            imagesavealpha($newImage, true);
+            imagealphablending($outImg, false);
+            imagesavealpha($outImg, true);
             imagecopyresampled(
-                $newImage, $this->_soruce,
+                $outImg, $this->_soruce,
                 0, 0, 0, 0,
                 $newWidth, $newHeight,
                 $this->_imageInfo['width'], $this->_imageInfo['height']
             );
 
-            return $newImage;
+            return $outImg;
         }
-        $newImage  = imagecreate($newWidth, $newHeight);
+        $outImg  = imagecreate($newWidth, $newHeight);
         imagecopyresized(
-            $newImage, $this->_soruce,
+            $outImg, $this->_soruce,
             0, 0, 0, 0,
             $newWidth, $newHeight,
             $this->_imageInfo['width'], $this->_imageInfo['height']
         );
 
-        return $newImage;
+        return $outImg;
+    }
+
+    /**
+     * 留白的方式来创建图片
+     * 
+     * 在保持图片大小不变的情况下空出来的内容留白处理
+     * 
+     * @author xjiujiu <xjiujiu@foxmail.com>
+     * @access protected
+     * @param $position 居中坐标
+     * @param  $nSize 新的尺寸
+     * @param  $tSize 位移尺寸
+     */
+    protected function _createNewImageByFillWhite($position, $nSize, $tSize)
+    {
+        if(function_exists('imagecopyresampled')) {
+            $outImg     = imagecreatetruecolor($nSize['width'], $nSize['height']);
+            $white      = imagecolorallocate($outImg, 255, 255, 255);
+            imagefill($outImg, 0, 0, $white);
+            imagecopyresampled(
+                $outImg, $this->_soruce,
+                $position['x'], $position['y'], 0, 0,
+                $tSize['width'], $tSize['height'],
+                $this->_imageInfo['width'], $this->_imageInfo['height']
+            );
+
+            return $outImg;
+        }
+        $outImg  = imagecreate($nSize['width'], $nSize['height']);
+        imagecopyresized(
+            $outImg, $this->_soruce,
+            $position['x'], $position['y'], 0, 0,
+            $tSize['width'], $tSize['height'],
+            $this->_imageInfo['width'], $this->_imageInfo['height']
+        );
+
+        return $outImg;
     }
 
     /**
@@ -148,8 +185,6 @@ class HImage extends HObject
 
     /**
      * 得到随机颜色 
-     * 
-     * @desc 
      * 
      * @access protected
      * @return 颜色对象
@@ -195,12 +230,13 @@ class HImage extends HObject
             throw new HVerifyException('不支持输出当前图片类型！' . $this->_imageInfo['type']);
         }
         if($file) {
-            $imageFunc($image, $imagePath);
+            'jpeg' === $this->_imageInfo['ext'] ? $imageFunc($image, $imagePath, 80) : $imageFunc($image, $imagePath);
         } else {
             header('Content-type: image/' . $this->_imageInfo['type']);
-            $imageFunc($image);
+            'jpeg' === $this->_imageInfo['ext'] ? $imageFunc($image, 80) : $imageFunc($image);
         }
         imagedestroy($image);
+        imagedestroy($this->_soruce);
     }
 
     /**
@@ -214,19 +250,20 @@ class HImage extends HObject
     protected function _verifyImageFile()
     {
         if(!file_exists($this->_imagePath)) {
-            throw new HIOException('Can not found the image file!' . $this->_imagePath);
+            throw new HIOException('找不到指定的图片!' . $this->_imagePath);
+        }
+        $info = pathinfo($this->_imagePath);
+        if(!is_writeable($info['dirname'])){
+            throw new HIOException('文件目录不可写!' . $info['dirname']);
         }
     }
 
     /**
      * 得到图片名称 
      * 
-     * @desc
-     * 
      * @access protected
      * @param string $imagePath 需要处理的图片路径
-     * @return string
-     * @exception none
+     * @return string 当前文件名称
      */
     protected function _getImageName($iamgePath = '')
     {

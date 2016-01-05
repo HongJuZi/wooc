@@ -35,20 +35,122 @@ HHJsLib.register({
     init: function() {
         this.bindDeleteHint();
         $('[data-rel="tooltip"]').tooltip();
-        HHJsLib.autoSelect('select.auto-select');
         HHJsLib.bindLightBox("a.lightbox", cdnUrl + '/jquery/plugins/lightbox');
-        HHJsLib.highLightElement('ul.nav-list li', 'active', 0, function(targetDom, target) {
-            if(!$(target).hasClass('single')) {
-                $(target).parent().parent().addClass('active');
-            }
-        });
+        this.highLightNavmenuBox();
         this.bindTimeInfo();
         this.bindSwitchWebsite();
+        this.bindNewByCopyBtn();
+        this.bindDateList();
+        this.bindDateTimeList();
         HHJsLib.fieldHint('input.search-query');
+        HHJsLib.autoSelect('select.auto-select');
+        this.bindUserExitBtn();
+    },
+    bindDateList: function() {
+        HHJsLib.importCss([siteUri + "/css/datepicker.css"]); 
+        HHJsLib.importJs(
+            [siteUri + "/js/bootstrap-datepicker.min.js"],
+            function() {
+                for(var ele in dateList) {
+                    $(dateList[ele]).datepicker({
+                        format: 'yyyy-mm-dd',
+                        autoclose: true,
+                        todayBtn: true,
+                        minuteStep: 2,
+                        todayHighlight: 1,
+                        language: 'zh-CN'
+                    }); 
+                }
+            }
+        );
+    },
+    bindDateTimeList: function() {
+        HHJsLib.importCss([cdnUrl + "/bootstrap/plugins/datetimepicker/css/bootstrap-datetimepicker.min.css"]); 
+        HHJsLib.importJs(
+            [cdnUrl + "/bootstrap/plugins/datetimepicker/js/bootstrap-datetimepicker.min.js"],
+            function() {
+                for(var ele in datetimeList) {
+                    $(datetimeList[ele]).datetimepicker({
+                        format: 'yyyy-mm-dd hh:ii:ss',
+                        autoclose: true,
+                        todayBtn: true,
+                        minuteStep: 2,
+                        todayHighlight: 1,
+                        language: 'zh-CN'
+                    }); 
+                }
+            }
+        );
+    },
+    bindNewByCopyBtn: function() {
+        var self    = this;
+        $('#btn-new-copy').click(function() {
+            $.getJSON(
+                queryUrl + 'admin/' + modelEnName + '/aloadlist',
+                {page: 1},
+                function(response) {
+                    if(false === response.rs) {
+                        return HHJsLib.warn(e);
+                    }
+                    self.showTableGridDialog(response.data);
+                }
+            );
+        });
+    },
+    showTableGridDialog: function(data) {
+        var theadHtml   = '';
+        var tbodyHtml   = '';
+        for(var field in data.fields) {
+            theadHtml   += '<th data-column-id="' + field 
+            + '" data-align="center" data-header-align="center">' 
+            + data.fields[field].name + '</th>';
+        }
+        for(var ele in data.list) {
+            tbodyHtml   += '<tr>';
+            for(var field in data.fields) {
+                tbodyHtml   += '<td>' + data.list[ele][field] +'</td>';
+            }
+            tbodyHtml       += '</tr>';
+        }
+        var t           = new Date().valueOf();
+        var tableHtml   = TplMap.TableGrid.replace(/{thead}/g, theadHtml);
+        tableHtml       = tableHtml.replace(/{tbody}/g, tbodyHtml);
+        tableHtml       = tableHtml.replace(/{t}/g, t);
+        var $dialog     = HHJsLib.Modal.confirm(
+            '请选择基于的文章', 
+            tableHtml, 
+            function($dialog) { 
+                HHJsLib.Modal.info($dialog.attr('data-id')); 
+            }
+        ).css('width', '1002px').css('left', '36%');
+        this.initGridTable('#grid-' + t);
+    },
+    initGridTable: function(dom) {
+        HHJsLib.importCss([
+            cdnUrl + 'jquery/plugins/jquery.bootgrid/jquery.bootgrid.min.css'
+        ]);
+        HHJsLib.importJs([
+            cdnUrl + 'jquery/plugins/jquery.bootgrid/jquery.bootgrid.min.js'
+        ], function() {
+            $(dom).bootgrid({
+                formatters: {
+                    "link": function(column, row) {
+                        return "<a href=\"#\">" + column.id + ": " + row.id + "</a>";
+                    }
+                }
+            });
+        });
+    },
+    highLightNavmenuBox: function() {
+        HHJsLib.highLightElement('ul.nav-list li', 'active', 1, function(targetDom, target) {
+            if(!$(target).hasClass('single')) {
+                $(target).parent().parent().parent().addClass('active');
+            }
+        });
     },
     bindDeleteHint: function() {
         $("a.delete").click(function() {
-            if(confirm("您确认要删除这条记录吗？删除后，就不能找回了！")) {
+            if(confirm("您确认要删除这条记录及关联数据吗？删除后，就不能找回了！")) {
                 return true;
             }
             return false;
@@ -83,6 +185,13 @@ HHJsLib.register({
                     });
                 }
             );
+        });
+    },
+    bindUserExitBtn: function() {
+        $('#exit-btn').click(function() {
+            HHJsLib.confirm('确定退出？', function() {
+                window.location.href = queryUrl + 'oauth/auser/logout';
+            });
         });
     }
 });

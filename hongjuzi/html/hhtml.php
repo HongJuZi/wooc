@@ -8,7 +8,7 @@
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  * HongJuZi Framework
  */
-defined('HPATH_BASE') or die();
+defined('HJZ_DIR') or die();
 
 /**
  * HTML代码显示工具类 
@@ -410,7 +410,7 @@ EDITOR_HTML;
                 'id=' . $preRecord['id']
             ),
             '上一条：' . $preRecord['name'],
-            'title="' . $preRecord['name'] . '" class="pre-record"'
+            'title="' . $preRecord['name'] . '" class="fleft pre-record"'
         );
     }
 
@@ -431,7 +431,7 @@ EDITOR_HTML;
                 'id=' . $nextRecord['id']
             ),
             '下一条：' . $nextRecord['name'],
-            'title="' . $nextRecord['name'] . '" class="next-record"'
+            'title="' . $nextRecord['name'] . '" class="fright next-record"'
         );
     }
     

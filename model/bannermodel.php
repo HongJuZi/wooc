@@ -2,7 +2,7 @@
 
 /**
  * @version			$Id$
- * @create 			2013-08-05 16:08:13 By xjiujiu
+ * @create 			2015-07-12 12:07:50 By xjiujiu
  * @description     HongJuZi Framework
  * @copyRight 		Copyright (c) 2011-2012 http://www.xjiujiu.com.All right reserved
  */
@@ -22,7 +22,7 @@ HClass::import('model.BaseModel');
  */
 class BannerModel extends BaseModel
 {
-
+    
 }
 
 ?>

@@ -1,0 +1,490 @@
+[     ERROR]	[2016-01-02 21:01:38]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/news
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/newsaction.php
+[     ERROR]	[2016-01-02 21:01:38]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:51]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/images/article-list.png
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/imagesaction.php
+[     ERROR]	[2016-01-02 21:01:51]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:55]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/search?type=447
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:56]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:05]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/ahasname?name=%E8%A1%8C%E4%B8%9A%E6%96%B0%E9%97%BB&id=
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:07]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/asubcategory
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:08]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/asubcategory
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:10]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/add
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:13]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:23]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:34]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/ahasname?name=%E5%85%AC%E5%8F%B8%E6%96%B0%E9%97%BB&id=
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:38]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/ahasname?name=%E5%A4%A7%E4%BA%8B%E8%AE%B0&id=
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:41]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/asubcategory
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:42]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/asubcategory
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:43]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/add
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:47]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:52]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:54]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:03]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/ahasname?name=%E5%A4%A7%E4%BA%8B%E8%AE%B0%E4%B8%80&id=
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:03]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/tstring/apinyin?data=%25E5%25A4%25A7%25E4%25BA%258B%25E8%25AE%25B0%25E4%25B8%2580
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:04]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/tstring/afenci
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:06]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/add
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:08]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:12]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/tstring/afenci
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:23]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/add
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 21:01:26]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:47]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/contact
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:49]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/contact/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:53]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/contact/ahasname?name=%E9%82%AE%E7%AE%B1&id=
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:01]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/contact/add
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:03]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/contact/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:04]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/contact/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:08]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/contact/ahasname?name=%E8%81%94%E7%B3%BB%E4%BA%BA&id=
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:16]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/contact/add
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:18]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/contact/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:22]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/contact/ahasname?name=%E5%9C%B0%E5%9D%80&id=
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:32]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/contact/add
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:34]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/contact/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:26]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/product
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/productaction.php
+[     ERROR]	[2016-01-02 22:01:26]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:45]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:47]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:57]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/ahasname?name=%E4%BA%A7%E5%93%81%E5%B1%95%E7%A4%BA%E4%B8%80&id=
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:57]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/tstring/apinyin?data=%25E4%25BA%25A7%25E5%2593%2581%25E5%25B1%2595%25E7%25A4%25BA%25E4%25B8%2580
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:00]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/tstring/afenci
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:31]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/add
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:33]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:36]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:38]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:44]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/ahasname?name=%E4%BA%A7%E5%93%81%E5%B1%95%E7%A4%BA%E5%88%86%E7%B1%BB&id=
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:46]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/asubcategory
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:58]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/add
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:01]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:08]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/search?type=447
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:13]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/search?perpage=10&type=451&keywords=%E5%85%B3%E9%94%AE%E5%AD%97...
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:16]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/editview?id=451
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:17]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/asubcategory
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:27]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/ahasname?name=%E4%BA%A7%E5%93%81%E5%88%86%E7%B1%BB%E4%B8%80&id=451
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:32]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/asubcategory
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:37]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/edit
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:39]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/editview?id=451
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:40]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/asubcategory
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:51]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:53]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/editview?id=758
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:57]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/tstring/afenci
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:02]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/resource/auploadimage
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:04]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/edit
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:07]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:19]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:34]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/ahasname?name=%E4%BC%81%E4%B8%9A%E7%BD%91%E7%AB%99&id=
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:36]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/asubcategory
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:38]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/asubcategory
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:41]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/add
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:44]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:33]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/navmenu
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:36]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/navmenu/aupdate?id=38&field=url&data=jobs
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:09]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:18]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/ahasname?name=%E6%8A%80%E6%9C%AF%E7%B1%BB&id=
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:20]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/asubcategory
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:31]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/ahasname?name=%E4%BA%BA%E6%89%8D%E6%8B%9B%E8%81%98&id=
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:38]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/add
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:41]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:42]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:47]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/ahasname?name=%E6%8A%80%E6%9C%AF%E7%B1%BB&id=
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:49]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/asubcategory
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:50]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/asubcategory
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:51]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/add
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:53]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:55]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:01]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/ahasname?name=UI%E8%AE%BE%E8%AE%A1%E7%B1%BB&id=
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:05]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/asubcategory
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:06]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/asubcategory
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:07]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/add
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:10]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:14]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:16]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:28]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/ahasname?name=PHP%E6%8A%80%E6%9C%AF%E6%8B%9B%E8%81%98&id=
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:28]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/tstring/apinyin?data=PHP%25E6%258A%2580%25E6%259C%25AF%25E6%258B%259B%25E8%2581%2598
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:29]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/tstring/afenci
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:50]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/add
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:53]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:20]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/bootstrap-3.3.5-dist/css/bootstrap.css
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:20]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/bootstrap-3.3.5-dist/css/bootstrap.css
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/bootstrap-3/3/5-dist/action/cssaction.php
+[     ERROR]	[2016-01-02 22:01:20]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/css/style.css
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/cssaction.php
+[     ERROR]	[2016-01-02 22:01:20]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/js/jquery.min.js
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/jsaction.php
+[     ERROR]	[2016-01-02 22:01:20]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/bootstrap-3.3.5-dist/js/bootstrap.min.js
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:20]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/bootstrap-3.3.5-dist/js/bootstrap.min.js
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/bootstrap-3/3/5-dist/action/jsaction.php
+[     ERROR]	[2016-01-02 22:01:20]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/images/logo.png
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/imagesaction.php
+[     ERROR]	[2016-01-02 22:01:20]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:20]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:20]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:20]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:20]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:20]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/images/article-list.png
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/imagesaction.php
+[     ERROR]	[2016-01-02 22:01:20]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:25]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:34]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/ahasname?name=%E5%A4%A7%E4%BA%8B%E8%AE%B0%E4%BA%8C&id=
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:34]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/tstring/apinyin?data=%25E5%25A4%25A7%25E4%25BA%258B%25E8%25AE%25B0%25E4%25BA%258C
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:35]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/tstring/afenci
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:39]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/add
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:42]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-02 22:01:27]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/aboutus
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/aboutusaction.php
+[     ERROR]	[2016-01-02 22:01:27]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 20:01:04]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 20:01:07]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/enter
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 20:01:07]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/vcode
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 20:01:11]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/oauth/auser/alogin
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 20:01:13]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 20:01:15]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 20:01:20]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/editview?id=757
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 20:01:24]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/tstring/afenci
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 20:01:26]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 20:01:30]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/delete?id=756
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 20:01:32]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 20:01:24]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/aboutus
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/aboutusaction.php
+[     ERROR]	[2016-01-03 20:01:24]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 20:01:49]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/aboutus
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/aboutusaction.php
+[     ERROR]	[2016-01-03 20:01:49]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 20:01:50]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 20:01:26]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/aboutus
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/aboutusaction.php
+[     ERROR]	[2016-01-03 20:01:26]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 20:01:41]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 20:01:05]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/news
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/newsaction.php
+[     ERROR]	[2016-01-03 20:01:05]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 21:01:20]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/images/article-list.png
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/imagesaction.php
+[     ERROR]	[2016-01-03 21:01:20]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 21:01:45]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/search?type=447
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 21:01:49]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/search?perpage=10&type=474&keywords=%E5%85%B3%E9%94%AE%E5%AD%97...
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 21:01:23]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/contact
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 21:01:33]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/contact/aupdate?id=22&field=content&data=0745-2233239
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 21:01:35]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/search?type=447
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 21:01:16]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 21:01:21]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/search?perpage=10&type=474&keywords=%E5%85%B3%E9%94%AE%E5%AD%97...
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 21:01:45]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/search?type=447
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 21:01:54]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/search?perpage=10&type=474&keywords=%E5%85%B3%E9%94%AE%E5%AD%97...
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 21:01:48]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/product
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/productaction.php
+[     ERROR]	[2016-01-03 21:01:48]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 21:01:08]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/images/article-list.png
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/imagesaction.php
+[     ERROR]	[2016-01-03 21:01:08]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/images/pic-list01.png
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/imagesaction.php
+[     ERROR]	[2016-01-03 21:01:08]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/images/pic-list02.png
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/imagesaction.php
+[     ERROR]	[2016-01-03 21:01:08]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/images/pic-list03.png
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/imagesaction.php
+[     ERROR]	[2016-01-03 21:01:08]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/images/pic-list04.png
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/imagesaction.php
+[     ERROR]	[2016-01-03 21:01:08]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/images/pic-list05.png
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/imagesaction.php
+[     ERROR]	[2016-01-03 21:01:08]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 21:01:09]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 21:01:09]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/images/pic-list06.png
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/imagesaction.php
+[     ERROR]	[2016-01-03 21:01:09]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 21:01:09]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 21:01:09]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 21:01:09]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 21:01:09]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 21:01:06]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/search?type=447
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-03 21:01:09]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category/search?perpage=10&type=535&keywords=%E5%85%B3%E9%94%AE%E5%AD%97...
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 10:01:57]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 10:01:41]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/category
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 21:01:51]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/aboutus
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/aboutusaction.php
+[     ERROR]	[2016-01-04 21:01:51]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 21:01:24]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/aboutus
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/aboutusaction.php
+[     ERROR]	[2016-01-04 21:01:24]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 21:01:07]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/aboutus
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/aboutusaction.php
+[     ERROR]	[2016-01-04 21:01:07]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 21:01:18]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/aboutus
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/aboutusaction.php
+[     ERROR]	[2016-01-04 21:01:18]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 21:01:38]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/aboutus
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/aboutusaction.php
+[     ERROR]	[2016-01-04 21:01:38]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 21:01:44]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 21:01:47]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/enter
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 21:01:47]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/vcode
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 21:01:50]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/oauth/auser/alogin
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 21:01:52]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 21:01:04]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/navmenu
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:58]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:01]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/editview?id=613
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:05]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/tstring/afenci
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:17]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/edit
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:21]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:05]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/images/article-list.png
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/imagesaction.php
+[     ERROR]	[2016-01-04 22:01:05]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/images/img-contact.png
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/imagesaction.php
+[     ERROR]	[2016-01-04 22:01:05]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:05]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:26]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/images/img-contact.png
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/imagesaction.php
+[     ERROR]	[2016-01-04 22:01:26]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:07]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/editview?id=613
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:10]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/tstring/afenci
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:15]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/edit
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:18]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:00]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/editview?id=633
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:03]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/tstring/afenci
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:10]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/edit
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:13]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:24]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/editview?id=633
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:27]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/tstring/afenci
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:28]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/edit
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:31]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:40]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/editview?id=633
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:43]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/tstring/afenci
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:04]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article/edit
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:08]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/article
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:14]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/message
+[Message]	文件不存在！E:\www\hjz-wooc-demo/app/cms/action/messageaction.php
+[     ERROR]	[2016-01-04 22:01:14]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/error/notfound
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:06]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:14]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/message
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:20]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:23]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/message
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:26]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/message/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:40]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/message
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:46]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/message/editview?id=15
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:51]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/message
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:17]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/message/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:38]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/wizard
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:42]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/wizard/modelmanager/editview?id=303
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:51]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/wizard/modelmanager/edit
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:53]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/message/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:55]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/message
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:59]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/message/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:08]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/message
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:22]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/message
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:41]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/message/addview
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-04 22:01:44]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/message
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-05 09:01:36]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/message
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-05 09:01:38]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/message
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-05 09:01:00]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/admin/enter
+[Message]	网站还没有设置使用的主题，请您稍后再来！
+[     ERROR]	[2016-01-05 09:01:18]	[127.0.0.1]	URL - http://localhost/hjz-wooc-demo/index.php/public/vcode
+[Message]	网站还没有设置使用的主题，请您稍后再来！

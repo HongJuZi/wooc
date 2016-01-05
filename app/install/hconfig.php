@@ -9,8 +9,8 @@
 defined('_HEXEC') or die('Restricted access!');
 
 return array (
-    'PAGE_STYLE' => 'blue',  //分页风格
-    'CUR_THEME' => 'default'      //当前使用的模板
+    'PAGE_STYLE' => 'bootstrap',  //分页风格
+    'CUR_THEME' => 'ace'      //当前使用的模板
 );
 
 ?>

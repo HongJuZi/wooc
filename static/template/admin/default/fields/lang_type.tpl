@@ -7,6 +7,5 @@
                     <option value="<?php echo $type['identifier']; ?>"><?php echo $type['name']; ?></option>
                     <?php  }?>
                 </select>
-				<span class="help-inline"><?php echo $popo->getFieldComment('lang_type'); ?></span>
             </div>
 		</div>

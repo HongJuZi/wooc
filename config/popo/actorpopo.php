@@ -68,18 +68,6 @@ class ActorPopo extends HPopo
             'name' => '描述', 
             'verify' => array(),
             'comment' => '角色介绍信息',
-        ),'rights' => array(
-            'name' => '权限资源', 
-            'verify' => array(),
-            'comment' => '角色具有的管理权限','is_show' => true, 
-        ),'top' => array(
-            'name' => '置顶状态', 'default' => '否',
-            'verify' => array('null' => false, 'options' => array('是','否'),),
-            'comment' => '只能为：是或否','is_show' => true, 
-        ),'edit_time' => array(
-            'name' => '编辑时间', 
-            'verify' => array('null' => false, 'numeric' => true,),
-            'comment' => '上一次编辑时间格式：2013-04-10','is_show' => true, 
         ),'create_time' => array(
             'name' => '创建时间', 
             'verify' => array('null' => false,),
