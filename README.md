@@ -17,7 +17,12 @@ Wooc ——专注“Easy 订制”
 
 在线API
 =========
-请访问：http://www.hongjuzi.net/api
+请访问：(http://www.hongjuzi.net/api)[http://www.hongjuzi.net/api]
+
+在线视频教程
+========
+请访问：(http://edu.csdn.net/course/detail/1750)[http://edu.csdn.net/course/detail/1750]
+
 
 使用许可
 ---------------------
